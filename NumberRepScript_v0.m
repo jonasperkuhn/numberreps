@@ -22,10 +22,10 @@ stimCol = [0 0 0]
 stimSize = 12;            % Anpassen
 
 % Darbietungsdauer, SOA etc.
-soa = [  ];               
-soaVec = [ ] 
-fixDur = [ ]                                                                                        % Anpassen
-fixDurVec = [ ] 
+soa = [  ];         % randomisere 500-800 ms     
+soaVec1 = [ ]      % Soa/Duration of Fixation cross before prime     
+soaVec2 = [ ]      % Soa/Duration of Fixation cross before target
+
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
 visonset = GetSecs;
@@ -69,20 +69,24 @@ visonset = GetSecs;    % der aktuelle Zeitmarker wird visonset zugewiesen, so da
 for i = 1:nTrials
 %% Fixationskreuz 1
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-  visonset = Screen('Flip',window, visonset + soa);               % Anpassen
-  visoffset = Screen('Flip',window, visonset + fixDurVec);
+  Screen('Flip', window);
 
 %%  Prime-Ausgabe 
   DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
+  primeVisonset = Screen('Flip',window, visonset + soaVec1(i));                % überprüfen       
+  primeVisoffset = Screen('Flip',window, visonset + primeDur);
 
 %%  Fixationskreuz 2
-
+  DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
+  Screen('Flip', window);      % Überprüfen
 
 %% Targetausgabe
   DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
-
+  primeVisonset = Screen('Flip',window, visonset + soaVec2(i));                % überprüfen       
+  
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
+  
   while (GetSecs - visonset) <  respinterval & ( ButtonPress == 0 )
     [keyIsDown, respTime, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
     ButtonPress =  keyIsDown;
