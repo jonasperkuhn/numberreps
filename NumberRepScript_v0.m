@@ -27,6 +27,7 @@ soaVec1 = [ ]      % Soa/Duration of Fixation cross before prime
 soaVec2 = [ ]      % Soa/Duration of Fixation cross before target
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
+respTime =                                                                  % Anpassen
 
 % ResultMatrix vorbereiten + VP NR
 NResVar = 5 % Anzahl Resultatvariablen
@@ -84,25 +85,29 @@ for i = 1:nTrials
   
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
-  
+ 
   while (GetSecs - targetVisonset) <  respinterval & ( ButtonPress == 0 )
-    [keyIsDown, respTime, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
-    ButtonPress =  keyIsDown;
-    WaitSecs(.001);
-    end
-    if ButtonPress
-        Button = find(keyCode);
-        rt = respTime - visonset;
-    end
-    if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ????
-      corrResp = 1;
-      GoTrial = 1;
-    end
-    % Befüllen der Spalten der Ergebnismatrix
-    results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial(i) visonset  visoffset ButtonPress Button rt corrResp]; % Resultatvariablen Ergänzen
+        [keyIsDown, respTime, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
+        ButtonPress =  keyIsDown;
+        WaitSecs(.001);
   end
   
-end % Ende der Trialschleife
+  if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ???
+    Button = find(keyCode);
+    rt = respTime - targetVisonset;
+    corrResp = 1;
+    GoTrial = 1;
+  else 
+    Button = find(keyCode);
+    rt = respTime - targetVisonset; 
+    corrResp = 0;
+    GoTrial = 0;
+  end  
+ 
+ %% Befüllen der Spalten der Ergebnismatrix
+ results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial corrResp visonset  visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
+   
+end % Ende der Trialschleife --------------------
 
 % Speichern der Resultat Matrix 
 
