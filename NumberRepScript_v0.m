@@ -25,10 +25,8 @@ stimSize = 12;            % Anpassen
 soa = [  ];         % randomisere 500-800 ms     
 soaVec1 = [ ]      % Soa/Duration of Fixation cross before prime     
 soaVec2 = [ ]      % Soa/Duration of Fixation cross before target
-
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
-visonset = GetSecs;
 
 % ResultMatrix vorbereiten + VP NR
 NResVar = 5 % Anzahl Resultatvariablen
@@ -82,12 +80,12 @@ for i = 1:nTrials
 
 %% Targetausgabe
   DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
-  primeVisonset = Screen('Flip',window, visonset + soaVec2(i));                % überprüfen       
+  targetVisonset = Screen('Flip',window, visonset + soaVec2(i));                % überprüfen       
   
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
   
-  while (GetSecs - visonset) <  respinterval & ( ButtonPress == 0 )
+  while (GetSecs - targetVisonset) <  respinterval & ( ButtonPress == 0 )
     [keyIsDown, respTime, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
     ButtonPress =  keyIsDown;
     WaitSecs(.001);
