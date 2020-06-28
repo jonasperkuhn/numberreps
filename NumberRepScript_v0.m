@@ -22,7 +22,7 @@ stimCol = [0 0 0]
 stimSize = 12;            % Anpassen
 
 % Darbietungsdauer, SOA etc.
-soa = [  ];         % randomisere 500-800 ms     
+soa = linspace(0.5, 0.8, 0.001);  % Soa Vektor von 500-800 ms in 1ms Schritten    % Anpassen: Wie genau randomisieren?
 soaVec1 = [ ]      % Soa/Duration of Fixation cross before prime     
 soaVec2 = [ ]      % Soa/Duration of Fixation cross before target
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
