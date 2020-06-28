@@ -107,7 +107,7 @@ for i = 1:nTrials
  %% Befüllen der Spalten der Ergebnismatrix
  results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial corrResp visonset  visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
    
-end % Ende der Trialschleife --------------------
+end % Ende der Trialschleife ------------------------------------------------------------------------
 
 % Speichern der Resultat Matrix 
 
