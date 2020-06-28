@@ -19,22 +19,20 @@ einsNr = '1'
 neunNr = '9'
 distractor = '#'
 stimCol = [0 0 0]
-stimSize = 12; % Anpassen
+stimSize = 12;            % Anpassen
 
 % Darbietungsdauer, SOA etc.
-soa = 3;               % Stimulus Onset Asynchronie  Anpassen
+soa = [  ];               
+soaVec = [ ] 
+fixDur = [ ]                                                                                        % Anpassen
+fixDurVec = [ ] 
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
-fixDur = 
-respinterval = 3;      % Antwortintervall in Sekunden
+respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
 visonset = GetSecs;
 
-% Vordefinieren der Reaktionszeit, ButtonPress & zu drückende Taste 
-respTime = 3  % sollen wir die maximale RespTime auch bei 3s belassen?
-ButtonPress = 0
-spacekeyID = KbName('space') % VP sollen bei Go-Trials die Space Taste drücken
-
 % ResultMatrix vorbereiten + VP NR
-resMatrix = zeros(nTrials, 5);
+NResVar = 5 % Anzahl Resultatvariablen
+resMatrix = zeros(nTrials, NResVar);
 iVp = input('Versuchspersonennummer: ');
 % eventuell auch:  iBlock = input('Blocknummer: ');
 
@@ -66,19 +64,43 @@ KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
+for i = 1:nTrials
 %% Fixationskreuz 1
-DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-Screen('Flip', window);
+  DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
+  visonset = Screen('Flip',window, visonset + soa);               % Anpassen
+  visoffset = Screen('Flip',window, visonset + fixDurVec);
 
 %%  Prime-Ausgabe 
-DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
+  DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
 
 %%  Fixationskreuz 2
 
-% Targetausgabe
-DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
 
+%% Targetausgabe
+  DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
 
+%% Warten auf Reaktion der VP
+  ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
+  while (GetSecs - visonset) <  respinterval & ( ButtonPress == 0 )
+    [keyIsDown, respTime, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
+    ButtonPress =  keyIsDown;
+    WaitSecs(.001);
+    end
+    if ButtonPress
+        Button = find(keyCode);
+        rt = respTime - visonset;
+    end
+    if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ????
+      corrResp = 1;
+      GoTrial = 1;
+    end
+    % Befüllen der Spalten der Ergebnismatrix
+    results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial(i) visonset  visoffset ButtonPress Button rt corrResp]; % Resultatvariablen Ergänzen
+  end
+  
+end % Ende der Trialschleife
+
+% Speichern der Resultat Matrix 
 
 
 Screen('CloseAll')
