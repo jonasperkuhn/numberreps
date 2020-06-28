@@ -22,9 +22,7 @@ stimCol = [0 0 0]
 stimSize = 12;            % Anpassen
 
 % Darbietungsdauer, SOA etc.
-soa = linspace(0.5, 0.8, 0.001);  % Soa Vektor von 500-800 ms in 1ms Schritten    % Anpassen: Wie genau randomisieren?
-soaVec1 = [ ]      % Soa/Duration of Fixation cross before prime     
-soaVec2 = [ ]      % Soa/Duration of Fixation cross before target
+soa = linspace(0.5, 0.8, 0.001);  % Soa Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
 respTime =                                                                  % Anpassen
@@ -72,7 +70,8 @@ for i = 1:nTrials
 
 %%  Prime-Ausgabe 
   DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
-  primeVisonset = Screen('Flip',window, visonset + soaVec1(i));                % überprüfen       
+  randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
+  primeVisonset = Screen('Flip',window, visonset + randSoa1);                % überprüfen       
   primeVisoffset = Screen('Flip',window, visonset + primeDur);
 
 %%  Fixationskreuz 2
@@ -81,7 +80,8 @@ for i = 1:nTrials
 
 %% Targetausgabe
   DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
-  targetVisonset = Screen('Flip',window, visonset + soaVec2(i));                % überprüfen       
+  randSoa2 = randsample(soa,1)
+  targetVisonset = Screen('Flip',window, visonset + randSoa2);                % überprüfen       
   
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
