@@ -64,6 +64,8 @@ KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
+visonset = GetSecs;    % der aktuelle Zeitmarker wird visonset zugewiesen, so dass der flip-Befehl beim ersten Durchlaufen der Schleife einen Wert für visonset hat
+
 for i = 1:nTrials
 %% Fixationskreuz 1
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
