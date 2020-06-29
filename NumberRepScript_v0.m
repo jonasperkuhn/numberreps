@@ -6,7 +6,7 @@ useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
 
 % Vordefinieren der Textparameter
-txtCol = [255 200 200];
+txtCol = [255 255 255];
 introSize = 64;
 txtSize = 30;
 introText = 'Herzlich willkommen zu unserem Experiment!'; 
@@ -38,6 +38,7 @@ iVp = input('Versuchspersonennummer: ');
 
 
 % Randomisierung der Bedingungen
+nTrials = 
 primeCondVec = % Prime Condition
 tarCondVec = % Target Condition
 
@@ -55,7 +56,7 @@ DrawFormattedText(window, introText, 'center', 'center', txtCol);
 
 Screen('TextSize', window, txtSize ); % Instruktionen
 Screen('TextFont', window, 'Arial');
-DrawFormattedText(window, instructions, 'center', 'center', txtCol);
+DrawFormattedText(window, instructions, 'center', 'center', txtCol);  % Anpassen
 Screen('Flip', window);
 KbStrokeWait;
 
@@ -69,6 +70,8 @@ for i = 1:nTrials
   Screen('Flip', window);
 
 %%  Prime-Ausgabe 
+  Screen('TextSize', window, introSize);
+  Screen('TextFont', window, 'Arial');
   DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
   randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
   primeVisonset = Screen('Flip',window, visonset + randSoa1);                % überprüfen       
@@ -81,7 +84,7 @@ for i = 1:nTrials
 %% Targetausgabe
   DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
   randSoa2 = randsample(soa,1)
-  targetVisonset = Screen('Flip',window, visonset + randSoa2);                % überprüfen       
+  targetVisonset = Screen('Flip',window, visionset + randSoa2);                % überprüfen       
   
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
