@@ -22,7 +22,6 @@ stimCol = [0 0 0]
 stimSize = 12;            % Anpassen
 
 % Darbietungsdauer, SOA etc.
-SOA = 1.1* ones(1, nTrials); %SOA zwischen Trials --> jitter anwenden
 soa = linspace(0.5, 0.8, 0.001);  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respTime =  3;  % Maximale Response Time bevor es zum nächsten Trial weiter geht
@@ -67,10 +66,9 @@ KbStrokeWait;
 visonset = GetSecs;  % Zeitmatker für Begin des trials
 
 for i = 1:nTrials
-plannedOnset = visonset + SOA(i); % jeder Trial beginnt erst nach einer bestimmten SOA
 %% Fixationskreuz 1
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-  Screen('Flip', window, plannedOnset);
+  Screen('Flip', window);
 
 %%  Prime-Ausgabe 
   Screen('TextSize', window, introSize);
