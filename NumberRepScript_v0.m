@@ -67,7 +67,7 @@ KbStrokeWait;
 visonset = GetSecs;  % Zeitmatker für Begin des trials
 
 for i = 1:nTrials
-plannedOnset = visonset + SOA
+plannedOnset = visonset + SOA(i); % jeder Trial beginnt erst nach einer bestimmten SOA
 %% Fixationskreuz 1
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
   Screen('Flip', window, plannedOnset);
