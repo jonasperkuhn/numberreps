@@ -22,7 +22,8 @@ stimCol = [0 0 0]
 stimSize = 12;            % Anpassen
 
 % Darbietungsdauer, SOA etc.
-soa = linspace(0.5, 0.8, 0.001);  % Soa Vektor von 500-800 ms in 1ms Schritten    
+SOA = 1.1* ones(1, nTrials); %SOA zwischen Trials --> jitter anwenden
+soa = linspace(0.5, 0.8, 0.001);  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respTime =  3;  % Maximale Response Time bevor es zum nächsten Trial weiter geht
 
@@ -63,12 +64,13 @@ KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
-visonset = GetSecs;    % der aktuelle Zeitmarker wird visonset zugewiesen, so dass der flip-Befehl beim ersten Durchlaufen der Schleife einen Wert für visonset hat
+visonset = GetSecs;  % Zeitmatker für Begin des trials
 
 for i = 1:nTrials
+plannedOnset = visonset + SOA
 %% Fixationskreuz 1
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-  Screen('Flip', window);
+  Screen('Flip', window, plannedOnset);
 
 %%  Prime-Ausgabe 
   Screen('TextSize', window, introSize);
@@ -77,7 +79,6 @@ for i = 1:nTrials
   
   randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
   primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen       
-  % primeVisoffset = Screen('Flip',window, visonset + primeDur - flip_int/2);
 
 %%  Fixationskreuz 2
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
