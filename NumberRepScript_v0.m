@@ -25,7 +25,8 @@ stimSize = 12;            % Anpassen
 soa = linspace(0.5, 0.8, 0.001);  % Soa Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
-respTime =                                                                  % Anpassen
+respTime =  3;  % Maximale Response Time bevor es zum nächsten Trial weiter geht
+
 
 % ResultMatrix vorbereiten + VP NR
 NResVar = 5 % Anzahl Resultatvariablen
@@ -89,15 +90,15 @@ for i = 1:nTrials
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
  
-  while (GetSecs - targetVisonset) <  respinterval & ( ButtonPress == 0 )
-        [keyIsDown, respTime, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
+  while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
+        [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
         ButtonPress =  keyIsDown;
-        WaitSecs(.001);
+        WaitSecs(.001); % um system zu entlasten
   end
   
   if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ???
     Button = find(keyCode);
-    rt = respTime - targetVisonset;
+    rt = rsecs - targetVisonset;
     corrResp = 1;
     GoTrial = 1;
   else 
@@ -108,11 +109,13 @@ for i = 1:nTrials
   end  
  
  %% Befüllen der Spalten der Ergebnismatrix
- results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial corrResp visonset  visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
+ results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial corrResp visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
    
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
 % Speichern der Resultat Matrix 
+
+% Feedback an die VP: Sie haben X von Y Durchgängen korrekt beantwortet
 
 
 Screen('CloseAll')
