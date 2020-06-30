@@ -24,7 +24,6 @@ stimSize = 12;            % Anpassen
 % Darbietungsdauer, SOA etc.
 soa = linspace(0.5, 0.8, 0.001);  % Soa Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
-respinterval = 3;      % Maximales Antwortintervall = 3 Sekunden
 respTime =  3;  % Maximale Response Time bevor es zum nächsten Trial weiter geht
 
 
@@ -98,9 +97,9 @@ for i = 1:nTrials
   
   if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ???
     Button = find(keyCode);
-    rt = rsecs - targetVisonset;
-    corrResp = 1;
-    GoTrial = 1;
+    rt = rsecs - targetVisonset; % Reaktionszeit
+    corrResp = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
+    GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
   else 
     Button = find(keyCode);
     rt = respTime - targetVisonset; 
