@@ -28,7 +28,7 @@ respTime =  3;  % Maximale Response Time bevor es zum nächsten Trial weiter geh
 
 
 % ResultMatrix vorbereiten + VP NR
-NResVar = 5 % Anzahl Resultatvariablen
+NResVar = 14 % Anzahl Resultatvariablen
 resMatrix = zeros(nTrials, NResVar);
 iVp = input('Versuchspersonennummer: ');
 % eventuell auch:  iBlock = input('Blocknummer: ');
@@ -39,11 +39,11 @@ iVp = input('Versuchspersonennummer: ');
 
 % Randomisierung der Bedingungen
 nTrials = 
-primeCondVec = % Prime Condition
-tarCondVec = % Target Condition
+primeCondVec = % finaler Prime Condition Vector
+tarCondVec = % finaler Target Condition Vector
 
 
-% Instruktionen  --------------------------------------------------------------------------------------------------------
+% PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
 Screen('Preference','ConserveVRAM',64);
 [window, windowSize]=Screen('OpenWindow', useScreen, bkgrCol);
@@ -114,13 +114,14 @@ for i = 1:nTrials
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
 % Speichern der Resultat Matrix 
-filename = ['vp' num2str(iVp) '.mat'];
+filename = ['vp' num2str(iVp, '%0.2d') '.mat']; % '%0.2d': mit führender null
 save(filename,'resMatrix');
 
 % Feedback an die VP
-%%correctRate = 100*length( find(resMatrix(:,*Index*)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
-%%meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der respCorrect Spalte ergänzen
-%%feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
+correctRate = 100*length( find(resMatrix(:,*Index*)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
+meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der respCorrect Spalte ergänzen
 
+feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
 
+% alles schließen
 Screen('CloseAll')
