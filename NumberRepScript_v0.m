@@ -87,7 +87,7 @@ for i = 1:nTrials
   targetVisonset = Screen('Flip',window, visionset + randSoa2);                % überprüfen       
   
 %% Warten auf Reaktion der VP
-  ButtonPress=0; Button = 0; rt = 0; corrResp = 0; GoTrial = 0;
+  ButtonPress=0; Button = 0; rt = 0; resCorrect = 0; GoTrial = 0;
  
   while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
         [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
@@ -98,17 +98,17 @@ for i = 1:nTrials
   if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ???
     Button = find(keyCode);
     rt = rsecs - targetVisonset; % Reaktionszeit
-    corrResp = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
+    resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
     GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
   else 
     Button = find(keyCode);
     rt = respTime - targetVisonset; 
-    corrResp = 0;
-    GoTrial = 0;
+    % resCorrect = 0; % ist schon default
+    % GoTrial = 0;
   end  
  
  %% Befüllen der Spalten der Ergebnismatrix
- results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial corrResp visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
+ results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
    
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
