@@ -56,7 +56,7 @@ DrawFormattedText(window, introText, 'center', 'center', txtCol);
 
 Screen('TextSize', window, txtSize ); % Instruktionen
 Screen('TextFont', window, 'Arial');
-DrawFormattedText(window, instructions, 'center', 'center', txtCol);  % Anpassen
+DrawFormattedText(window, instructions, 'center', 'center', txtCol);  % Anpassen, unter dem intro text
 Screen('Flip', window);
 KbStrokeWait;
 
@@ -93,9 +93,10 @@ for i = 1:nTrials
         [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
         ButtonPress =  keyIsDown;
         WaitSecs(.001); % um system zu entlasten
+   
   end
   
-  if ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) % Richtige Antwort in Condition ???
+  if ( ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) ) | ( ButtonPress == 0 & primeCondVec(i) ~= targetCondVec(i) ) % ABGLEICHEN
     Button = find(keyCode);
     rt = rsecs - targetVisonset; % Reaktionszeit
     resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
@@ -108,13 +109,18 @@ for i = 1:nTrials
   end  
  
  %% Befüllen der Spalten der Ergebnismatrix
- results(i,1:NResVar) = [vp i targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
+ resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
    
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
 % Speichern der Resultat Matrix 
+filename = ['vp' num2str(iVp) '.mat'];
+save(filename,'resMatrix');
 
-% Feedback an die VP: Sie haben X von Y Durchgängen korrekt beantwortet
+% Feedback an die VP
+%%correctRate = 100*length( find(resMatrix(:,*Index*)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
+%%meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der respCorrect Spalte ergänzen
+%%feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
 
 
 Screen('CloseAll')
