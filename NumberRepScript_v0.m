@@ -45,8 +45,9 @@ tarCondVec = % finaler Target Condition Vector
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
-Screen('Preference','ConserveVRAM',64);
+  %Screen('Preference','ConserveVRAM',64);
 [window, windowSize]=Screen('OpenWindow', useScreen, bkgrCol);
+flip_int = Screen('GetFlipInterval', window); % optimieren des timings
 HideCursor; 
 
 %%% Textausgabe Intro & Instruktionen
@@ -73,18 +74,19 @@ for i = 1:nTrials
   Screen('TextSize', window, introSize);
   Screen('TextFont', window, 'Arial');
   DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
+  
   randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
-  primeVisonset = Screen('Flip',window, visonset + randSoa1);                % überprüfen       
-  primeVisoffset = Screen('Flip',window, visonset + primeDur);
+  primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen       
+  % primeVisoffset = Screen('Flip',window, visonset + primeDur - flip_int/2);
 
 %%  Fixationskreuz 2
   DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-  Screen('Flip', window);      % Überprüfen
+  primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      % Überprüfen
 
 %% Targetausgabe
   DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
   randSoa2 = randsample(soa,1)
-  targetVisonset = Screen('Flip',window, visionset + randSoa2);                % überprüfen       
+  targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen       
   
 %% Warten auf Reaktion der VP
   ButtonPress=0; Button = 0; rt = 0; resCorrect = 0; GoTrial = 0;
