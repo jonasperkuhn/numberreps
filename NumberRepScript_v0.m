@@ -79,7 +79,7 @@ Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, introText, 'center', yInt, txtCol);
 
 Screen('TextSize', window, txtSize ); % Instruktionen
-Screen('TextFont', window, 'Arial');
+    % Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, instructions, 'center', yIns, txtCol);  % Anpassen, unter dem intro text
 Screen('Flip', window);
 KbStrokeWait;
@@ -151,6 +151,8 @@ meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der 
 
 feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
 
+Screen('TextSize', window, introSize ); 
+Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
 Screen('Flip', window);
 KbStrokeWait;
