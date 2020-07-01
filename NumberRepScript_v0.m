@@ -26,8 +26,15 @@ neunTxt = 'Neun'
 einsNr = '1'
 neunNr = '9'
 distractor = '#'
-stimCol = [0 0 0]
-stimSize = 12;            % Anpassen
+#square_bkgrColor = [255 255 255]; #Hintergrundfarbe
+square_fontColor = [0 0 0]; #Target/Distraktor Farbe
+square_txtSize = 42; #Target/Distraktor (Text)Größe
+nPositions_root = 7; #Anzahl der Miniquadrate horizontal bzw. vertikal
+big_square_length = 910; #Kantenlänge des Gesamtquadrats in Pixel
+puffer_zone = 15; #Mindestabstand der Symbole zum Rand eines Miniquadrats in Pixel
+
+
+
 
 % Darbietungsdauer, SOA etc.
 soa = linspace(0.5, 0.8, 0.001);  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
@@ -105,7 +112,56 @@ for i = 1:nTrials
   primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      % Überprüfen
 
 %% Targetausgabe
-  DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
+  
+  #----------------------------------------------------------------
+    Screen('TextSize', window, square_txtSize );
+    
+    #Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
+    targetPosition = randAllTrialMat(2,i);
+    targetText = int2str(randAllTrialMat(1,i));
+
+    nPositions = nPositions_root^2; #Gesamtzahl der Miniquadrate
+    square_length = big_square_length / nPositions_root #Kantenlänge eines Miniquadrats
+
+    #Bestimme Bildschirmmitte
+    x_center = windowSize(3) / 2;
+    y_center = windowSize(4) / 2;
+
+    #Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
+    x_start = x_center - (floor(nPositions_root/2) * square_length);
+    y_start = y_center - (floor(nPositions_root/2) * square_length);
+
+    x = x_start;
+    y = y_start;
+    
+    #Schleife die durch alle Miniquadrate geht
+    for iPosition = 1: nPositions
+
+      #An richtiger Position Target, sonst Distraktor bereithalten
+      if iPosition == targetPosition;
+        positionText = targetText;
+      else
+        positionText = distractor;
+      endif
+
+      #Jitter um die Position innerhalb des Miniquadrats generieren mit definiertem Abstand zum Rand
+      x_jitter = x - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
+      y_jitter = y - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
+
+      #Zeichnen des Target/Distraktor
+      DrawFormattedText(window, positionText, x_jitter, y_jitter, square_fontColor);
+
+      #Positionsberechnung der Mitte des nächsten Miniquadrats. 
+      #Nach jeder vollen Zeile wird die nächste Zeile gezeichnet.
+      if mod(iPosition,nPositions_root) == 0
+        x = x_start;
+        y = y + square_length;
+      else
+        x = x + square_length;
+      endif
+    end
+  
+  
   randSoa2 = randsample(soa,1)
   targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen       
   
