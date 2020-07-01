@@ -1,9 +1,15 @@
 % Experimentalskript 'Number representations' fuer Steuerung psychol.
 % Experimente 2020
+% Experimentalskript 'Number representations' fuer Steuerung psychol.
+% Experimente 2020
 
 % Vordefinieren der Grundparameter
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
+nTrials = 12;
+nPrimes = 2; % 1 und 9
+nShowSamePos = 2; % wie oft die Stimuli an derselben Positon gezeigt werden
+ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
 
 % Vordefinieren der Textparameter
 txtCol = [255 255 255];
@@ -37,11 +43,30 @@ iVp = input('Versuchspersonennummer: ');
 % Positions-Matrix
 
 
-% Randomisierung der Bedingungen
-nTrials = 
+%% *% Randomisierung der Bedingungen*
+nGoTrials = nTrials*ratioGoNogo;
+nNogoTrials = round(nTrials*(1-ratioGoNogo));
+
+    %Matrizen zur Bestimmung der go und nogo trials:
+goCondMat = ones(2, nTrials*5/6);
+nogoCondMat = -ones(2, nTrials*1/6);
+
+goCondMat(2,:) = [ones(1, nGoTrials/nPrimes), 9*ones(1, nGoTrials/nPrimes)];
+nogoCondMat(2,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
+
+    % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
+allCondVec = [goCondMat, nogoCondMat];
+    % Randomisierung der conditions:
+randAllCondVec = allCondVec(:, randperm(nTrials));
+
+
+
 primeCondVec = % finaler Prime Condition Vector
 tarCondVec = % finaler Target Condition Vector
 
+for i = 1:(nTrials/()
+    
+end
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
@@ -63,7 +88,7 @@ KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
-visonset = GetSecs;  % Zeitmatker für Begin des trials
+visonset = GetSecs;  % Zeitmarker für Beginn des trials
 
 for i = 1:nTrials
 %% Fixationskreuz 1
@@ -97,6 +122,7 @@ for i = 1:nTrials
    
   end
   
+  % todo: code auf randomisierten Vektor anpassen (go-nogo statt if-loop)
   if ( ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) ) | ( ButtonPress == 0 & primeCondVec(i) ~= targetCondVec(i) ) % ABGLEICHEN
     Button = find(keyCode);
     rt = rsecs - targetVisonset; % Reaktionszeit
