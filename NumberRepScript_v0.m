@@ -21,7 +21,7 @@ einsNr = '1';
 neunNr = '9';
 distractor = '#';
 stimCol = [0 0 0];
-stimSize = 12;            % Anpassen
+stimSize = 30;            % Anpassen
 primeFixSize = 50;
 
 % Tastenreaktion, Darbietungsdauer, SOA etc.
@@ -108,6 +108,7 @@ for i = 1:nTrials
     primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
     
     %# Targetausgabe
+    Screen('TextSize', window, stimSize);
     DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
     randSoa2 = randsample(soa,1)
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen
