@@ -151,5 +151,9 @@ meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der 
 
 feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
 
+DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
+Screen('Flip', window);
+KbStrokeWait;
+
 % alles schließen
 Screen('CloseAll')
