@@ -1,40 +1,38 @@
 % Experimentalskript 'Number representations' fuer Steuerung psychol.
 % Experimente 2020
-% Experimentalskript 'Number representations' fuer Steuerung psychol.
-% Experimente 2020
 
 % Vordefinieren der Grundparameter
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
-nTrials = 12;
-nPrimes = 2; % 1 und 9
-nShowSamePos = 2; % wie oft die Stimuli an derselben Positon gezeigt werden
-ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
 
 % Vordefinieren der Textparameter
 txtCol = [255 255 255];
 introSize = 64;
 txtSize = 30;
+yInt = windowSize(4)/2 - 600;   %ggf. Anpassen
+yIns = windowSize(4)/2 - 100;
 introText = 'Herzlich willkommen zu unserem Experiment!'; 
-instructions = 'Im folgenden Experiment ..... Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu starten' % Instruktion Ergänzen
+instructions = 'Im folgenden Experiment.. Reaktion mit Leertaste... Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu starten' % Instruktion Ergänzen
 
 % Vordefinieren der Stimuli 
-einsTxt = 'Eins'
-neunTxt = 'Neun'
-einsNr = '1'
-neunNr = '9'
-distractor = '#'
-stimCol = [0 0 0]
+einsTxt = 'Eins';
+neunTxt = 'Neun';
+einsNr = '1';
+neunNr = '9';
+distractor = '#';
+stimCol = [0 0 0];
 stimSize = 12;            % Anpassen
+primeFixSize = 50;
 
-% Darbietungsdauer, SOA etc.
-soa = linspace(0.5, 0.8, 0.001);  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
+% Tastenreaktion, Darbietungsdauer, SOA etc.
+respKey = KbName('Space'); % Reaktion auf Go-trials mit Leertaste
+soa = [0.5:0.001:0.8];  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
-respTime =  3;  % Maximale Response Time bevor es zum nächsten Trial weiter geht
+respTime =  3;  % 3s Maximale Response Time bevor es zum nächsten Trial weiter geht
 
 
 % ResultMatrix vorbereiten + VP NR
-NResVar = 14 % Anzahl Resultatvariablen
+NResVar = 14; % Anzahl Resultatvariablen
 resMatrix = zeros(nTrials, NResVar);
 iVp = input('Versuchspersonennummer: ');
 % eventuell auch:  iBlock = input('Blocknummer: ');
@@ -73,74 +71,76 @@ Screen('Preference', 'SkipSyncTests', 1);
   %Screen('Preference','ConserveVRAM',64);
 [window, windowSize]=Screen('OpenWindow', useScreen, bkgrCol);
 flip_int = Screen('GetFlipInterval', window); % optimieren des timings
-HideCursor; 
+HideCursor; % Mauszeiger verstecken
 
 %%% Textausgabe Intro & Instruktionen
 Screen('TextSize', window, introSize ); % Introtext
 Screen('TextFont', window, 'Arial');
-DrawFormattedText(window, introText, 'center', 'center', txtCol);
+DrawFormattedText(window, introText, 'center', yInt, txtCol);
 
 Screen('TextSize', window, txtSize ); % Instruktionen
 Screen('TextFont', window, 'Arial');
-DrawFormattedText(window, instructions, 'center', 'center', txtCol);  % Anpassen, unter dem intro text
+DrawFormattedText(window, instructions, 'center', yIns, txtCol);  % Anpassen, unter dem intro text
 Screen('Flip', window);
 KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
-visonset = GetSecs;  % Zeitmarker für Beginn des trials
+visonset = GetSecs;  % Zeitmatker für Begin des trials
 
 for i = 1:nTrials
-%% Fixationskreuz 1
-  DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-  Screen('Flip', window);
-
-%%  Prime-Ausgabe 
-  Screen('TextSize', window, introSize);
-  Screen('TextFont', window, 'Arial');
-  DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol); 
-  
-  randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
-  primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen       
-
-%%  Fixationskreuz 2
-  DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);  
-  primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      % Überprüfen
-
-%% Targetausgabe
-  DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
-  randSoa2 = randsample(soa,1)
-  targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen       
-  
-%% Warten auf Reaktion der VP
-  ButtonPress=0; Button = 0; rt = 0; resCorrect = 0; GoTrial = 0;
- 
-  while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
+    %# Fixationskreuz 1
+    Screen('TextSize', window, primeFixSize);
+    DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
+    Screen('Flip', window);
+    
+    %#  Prime-Ausgabe
+    Screen('TextSize', window, introSize);
+    Screen('TextFont', window, 'Arial');
+    DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol);
+    
+    randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
+    primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
+    
+    %#  Fixationskreuz 2
+    Screen('TextSize', window, primFixSize);
+    DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
+    primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
+    
+    %# Targetausgabe
+    DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
+    randSoa2 = randsample(soa,1)
+    targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen
+    
+    %# Warten auf Reaktion der VP
+    ButtonPress=0;
+    
+    while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
         [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
         ButtonPress =  keyIsDown;
         WaitSecs(.001); % um system zu entlasten
-   
-  end
-  
-  % todo: code auf randomisierten Vektor anpassen (go-nogo statt if-loop)
-  if ( ButtonPress == 1 & primeCondVec(i) == targetCondVec(i) ) | ( ButtonPress == 0 & primeCondVec(i) ~= targetCondVec(i) ) % ABGLEICHEN
-    Button = find(keyCode);
-    rt = rsecs - targetVisonset; % Reaktionszeit
-    resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
-    GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-  else 
-    Button = find(keyCode);
-    rt = respTime - targetVisonset; 
-    % resCorrect = 0; % ist schon default
-    % GoTrial = 0;
-  end  
- 
- %% Befüllen der Spalten der Ergebnismatrix
- resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
-   
+    end
+    
+    if ButtonPress == 1
+        usedButton = find(keyCode);
+        rt = rsecs - targetVisonset; % Reaktionszeit
+        if primeCondVec(i) == targetCondVec(i) & usedButton == respKey
+            resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
+            GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
+        else
+            resCorrect = 0;  % 1 = richtige Antwort, 0 = falsche Antwort
+            GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
+    elseif ButtonPress == 0 & primeCondVec(i) ~= targetCondVec(i)
+            resCorrect = 0; % ist schon default
+            GoTrial = 0;
+    end
+        
+    %# Befüllen der Spalten der Ergebnismatrix
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
+        
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
-% Speichern der Resultat Matrix 
+%% Speichern der Resultat Matrix 
 filename = ['vp' num2str(iVp, '%0.2d') '.mat']; % '%0.2d': mit führender null
 save(filename,'resMatrix');
 
