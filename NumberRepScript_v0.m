@@ -5,11 +5,12 @@
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
 
-nGoTrials = 98; % Anzahl trials, in denen ein target gezeigt wird
+nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
+nShowSamePos = 2; % wie oft die targets an derselben Positon gezeigt werden
+nGoTrials = (nPositions_root^2)*nShowSamePos; % Anzahl trials, in denen ein target gezeigt wird
 ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
 nTrials = round(nGoTrials/ratioGoNogo);
 nPrimes = 2; % 1 und 9
-nShowSamePos = 2; % wie oft die targets an derselben Positon gezeigt werden
 
 % Vordefinieren der Textparameter
 txtCol = [255 255 255];
@@ -34,7 +35,6 @@ primeFixSize = 50;
 square_bkgrColor = [255 255 255]; % Hintergrundfarbe
 square_fontColor = [0 0 0]; % Target/Distraktor Farbe
 square_txtSize = 42; % Target/Distraktor (Text)Größe
-nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
 big_square_length = 910; % Kantenlänge des Gesamtquadrats in Pixel
 puffer_zone = 15; % Mindestabstand der Symbole zum Rand eines Miniquadrats in Pixel
 
