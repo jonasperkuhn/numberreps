@@ -132,7 +132,7 @@ for i = 1:nTrials
     %# Schleife die durch alle Miniquadrate geht
     for iPosition = 1: nPositions
 
-      % An richtiger Position Target, sonst Distraktor bereithalten
+    %# An richtiger Position Target, sonst Distraktor bereithalten
       if iPosition == targetPosition;
         positionText = targetText;
       else
@@ -160,7 +160,7 @@ for i = 1:nTrials
     % Screen('TextSize', window, stimSize);
     % DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); 
     randSoa2 = randsample(soa,1)
-    targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen
+    targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);             
     
     %# Warten auf Reaktion der VP
     ButtonPress=0;
@@ -172,21 +172,25 @@ for i = 1:nTrials
     end
     
     if ButtonPress == 1
+        visoffset = GetSecs % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
         if randAllTrialMat(i 2) ~= 0 & usedButton == respKey
             resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-        else
+        elseif randAllTrialMat(i 2) ~= 0 & usedButton ~= respKey
             resCorrect = 0;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-    elseif ButtonPress == 0 & randAllTrialMat(i 2) == 0
-            resCorrect = 0; % ist schon default
+        elseif randAllTrialMat(i 2) == 0
+            resCorrect = 0; 
+            GoTrial = 0;
+    elseif ButtonPress == 0 & randAllTrialMat(i 2) == 0 
+            resCorrect = 1; 
             GoTrial = 0;
     end
         
-    %# Befüllen der Spalten der Ergebnismatrix
-    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt randSoa1 randSoa2]; % Resultatvariablen Ergänzen
+    %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
@@ -199,7 +203,6 @@ correctRate = 100*length( find(resMatrix(:,*Index*)==1) )/nTrials;  % Index der 
 meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der respCorrect Spalte ergänzen
 
 feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
-
 Screen('TextSize', window, introSize ); 
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
