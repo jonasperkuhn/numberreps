@@ -6,11 +6,17 @@ useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
 
 nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
-nShowSamePos = 2; % wie oft die targets an derselben Positon gezeigt werden
+nShowSamePos = 1; % wie oft die targets an derselben Positon gezeigt werden
 nGoTrials = (nPositions_root^2)*nShowSamePos; % Anzahl trials, in denen ein target gezeigt wird
 ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
 nTrials = round(nGoTrials/ratioGoNogo);
 nPrimes = 2; % 1 und 9
+NResVar = 13;
+
+% ResultMatrix vorbereiten + VP NR
+NResVar = 14; % Anzahl Resultatvariablen
+resMatrix = zeros(nTrials, NResVar);
+iVp = input('Versuchspersonennummer: ');
 
 % Vordefinieren der Textparameter
 txtCol = [255 255 255];
@@ -49,15 +55,22 @@ respTime =  3;  % 3s Maximale Response Time bevor es zum nächsten Trial weiter 
 nNogoTrials = nTrials-nGoTrials;
 
     % getrennte Matrizen zur Bestimmung der go und nogo trials:
-goTrialPosMat = ones(2, nGoTrials);
+if mod(nGoTrials,2) == 1 %  rest -> ungerade zahl
+    addToEven = 1;
+else
+    addToEven = 0;
+end
+   
+nTrials = round((nGoTrials + addToEven)/ratioGoNogo);
+goTrialPosMat = ones(2, nGoTrials + addToEven);
 nogoTrialPosMat = zeros(2, nNogoTrials);
 
     % Bestimmung der Targets (1. Zeile der Matrix):
-goTrialPosMat(1,:) = [ones(1, nGoTrials/nPrimes), 9*ones(1, nGoTrials/nPrimes)];
+goTrialPosMat(1,:) = [ones(1, (nGoTrials + addToEven)/nPrimes), 9*ones(1, (nGoTrials + addToEven)/nPrimes)];
 % nogoTrialPosMat(1,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
 
     % Bestimmung der Targetpositionen (2. Zeile der Matrix; 0 für nogo-trial):
-goTrialPosMat(2,:) = repmat([1:(nGoTrials/nShowSamePos)], 1, 2);
+goTrialPosMat(2,:) = repmat([1:((nGoTrials + addToEven)/nShowSamePos)], 1, 2);
     
     % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
 allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
@@ -88,7 +101,7 @@ KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
-visonset = GetSecs;  % Zeitmatker für Begin des trials
+visonset = GetSecs;  % Zeitmarker für Begin des trials
 
 for i = 1:nTrials
     %# Fixationskreuz 1
@@ -115,7 +128,7 @@ for i = 1:nTrials
     primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
     
     %#  Fixationskreuz 2
-    Screen('TextSize', window, primFixSize);
+    Screen('TextSize', window, primeFixSize);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
     
@@ -183,23 +196,26 @@ for i = 1:nTrials
         visoffset = GetSecs % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
-        if randAllTrialMat(i, 2) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
+        if randAllTrialMat(2, i) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
             resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-        elseif randAllTrialMat(i, 2) ~= 0 & usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
+        elseif randAllTrialMat(2, i) ~= 0 & usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
             resCorrect = 0;  
             GoTrial = 1;  
-        elseif randAllTrialMat(i, 2) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
+        elseif randAllTrialMat(2, i) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
             resCorrect = 0; 
             GoTrial = 0;
         end
-    elseif ButtonPress == 0 & randAllTrialMat(i, 2) == 0 % falls NoGo Trial & keine taste gedrückt
+    elseif ButtonPress == 0 & randAllTrialMat(2, i) == 0 % falls NoGo Trial & keine taste gedrückt
             resCorrect = 1; 
             GoTrial = 0;
+    else 
+        resCorrect = -99; 
+        GoTrial = 1;
     end
         
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
-    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(i, 1) randAllTrialMat(i, 2) GoTrial resCorrect rt visonset visoffset ButtonPress Button]; % Resultatvariablen Ergänzen
+    % resMatrix(1,i:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton]; % Resultatvariablen Ergänzen
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
