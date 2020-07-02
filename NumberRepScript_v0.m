@@ -175,16 +175,16 @@ for i = 1:nTrials
         visoffset = GetSecs % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
-        if randAllTrialMat(i 2) ~= 0 & usedButton == respKey
+        if randAllTrialMat(i 2) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
             resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-        elseif randAllTrialMat(i 2) ~= 0 & usedButton ~= respKey
-            resCorrect = 0;  % 1 = richtige Antwort, 0 = falsche Antwort
-            GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-        elseif randAllTrialMat(i 2) == 0
+        elseif randAllTrialMat(i 2) ~= 0 & usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
+            resCorrect = 0;  
+            GoTrial = 1;  
+        elseif randAllTrialMat(i 2) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
             resCorrect = 0; 
             GoTrial = 0;
-    elseif ButtonPress == 0 & randAllTrialMat(i 2) == 0 
+    elseif ButtonPress == 0 & randAllTrialMat(i 2) == 0 % falls NoGo Trial & keine taste gedrückt
             resCorrect = 1; 
             GoTrial = 0;
     end
