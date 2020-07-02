@@ -197,7 +197,7 @@ for i = 1:nTrials
     end
         
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
-    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(i 1) randAllTrialMat(i 2) GoTrial resCorrect visonset visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(i 1) randAllTrialMat(i 2) GoTrial resCorrect rt visonset visoffset ButtonPress Button]; % Resultatvariablen Ergänzen
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
@@ -205,9 +205,12 @@ end % Ende der Trialschleife ---------------------------------------------------
 filename = ['vp' num2str(iVp, '%0.2d') '.mat']; % '%0.2d': mit führender null
 save(filename,'resMatrix');
 
+dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t Position \t GoTrial \t resCorrect \t RT \t expBegin \t exEnde \t buttonPress \t buttonUsed '),'delimiter','')
+dlmwrite(filename, results, '-append', 'precision',6,'delimiter','\t')
+
 % Feedback an die VP
-correctRate = 100*length( find(resMatrix(:,*Index*)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
-meanRT = 1000*mean(resMatrix( find(resMatrix(:,*Index*)==1),8));    % Index der respCorrect Spalte ergänzen
+correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
+meanRT = 1000*mean(resMatrix( find(resMatrix(:,8)==1),9));    % Index der respCorrect Spalte ergänzen
 
 feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
 Screen('TextSize', window, introSize ); 
