@@ -16,8 +16,7 @@ nPrimes = 2; % 1 und 9
 txtCol = [255 255 255];
 introSize = 64;
 txtSize = 30;
-yInt = windowSize(4)/2 - 600;   %ggf. Anpassen
-yIns = windowSize(4)/2 - 100;
+
 introText = 'Herzlich willkommen zu unserem Experiment!'; 
 instructions = 'Im folgenden Experiment.. Reaktion mit Leertaste... Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu starten' % Instruktion Ergänzen
 
@@ -69,10 +68,12 @@ randAllTrialMat = allTrialMat(:, randperm(nTrials)); % erste Spalte = target(1 v
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
-  %Screen('Preference','ConserveVRAM',64);
+Screen('Preference','ConserveVRAM',64);
 [window, windowSize]=Screen('OpenWindow', useScreen, bkgrCol);
 flip_int = Screen('GetFlipInterval', window); % optimieren des timings
 HideCursor; % Mauszeiger verstecken
+yInt = windowSize(4)/2 - 600;   %ggf. Anpassen
+yIns = windowSize(4)/2 - 100;
 
 %%% Textausgabe Intro & Instruktionen
 Screen('TextSize', window, introSize ); % Introtext
@@ -99,7 +100,7 @@ for i = 1:nTrials
     
     if randAllTrialMat(1,i) == 1
         primeWord = 'eins';
-    elif randAllTrialMat(1,i) == 9
+    elseif randAllTrialMat(1,i) == 9
         primeWord = 'neun';
     else
         display wrong prime;
@@ -125,8 +126,8 @@ for i = 1:nTrials
     targetPosition = randAllTrialMat(2,i);
     targetText = int2str(randAllTrialMat(1,i));
 
-    nPositions = nPositions_root^2; #Gesamtzahl der Miniquadrate
-    square_length = big_square_length / nPositions_root #Kantenlänge eines Miniquadrats
+    nPositions = nPositions_root^2; %#Gesamtzahl der Miniquadrate
+    square_length = big_square_length / nPositions_root %#Kantenlänge eines Miniquadrats
 
     %# Bestimme Bildschirmmitte
     x_center = windowSize(3) / 2;
@@ -147,7 +148,7 @@ for i = 1:nTrials
         positionText = targetText;
       else
         positionText = distractor;
-      endif
+      end
 
       % Jitter um die Position innerhalb des Miniquadrats generieren mit definiertem Abstand zum Rand
       x_jitter = x - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
@@ -163,7 +164,7 @@ for i = 1:nTrials
         y = y + square_length;
       else
         x = x + square_length;
-      endif
+      end
     end
    
     randSoa2 = randsample(soa,1)
@@ -182,22 +183,23 @@ for i = 1:nTrials
         visoffset = GetSecs % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
-        if randAllTrialMat(i 2) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
+        if randAllTrialMat(i, 2) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
             resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-        elseif randAllTrialMat(i 2) ~= 0 & usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
+        elseif randAllTrialMat(i, 2) ~= 0 & usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
             resCorrect = 0;  
             GoTrial = 1;  
-        elseif randAllTrialMat(i 2) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
+        elseif randAllTrialMat(i, 2) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
             resCorrect = 0; 
             GoTrial = 0;
-    elseif ButtonPress == 0 & randAllTrialMat(i 2) == 0 % falls NoGo Trial & keine taste gedrückt
+        end
+    elseif ButtonPress == 0 & randAllTrialMat(i, 2) == 0 % falls NoGo Trial & keine taste gedrückt
             resCorrect = 1; 
             GoTrial = 0;
     end
         
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
-    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(i 1) randAllTrialMat(i 2) GoTrial resCorrect rt visonset visoffset ButtonPress Button]; % Resultatvariablen Ergänzen
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(i, 1) randAllTrialMat(i, 2) GoTrial resCorrect rt visonset visoffset ButtonPress Button]; % Resultatvariablen Ergänzen
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
