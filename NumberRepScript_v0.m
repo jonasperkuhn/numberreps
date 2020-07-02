@@ -98,7 +98,7 @@ for i = 1:nTrials
     %#  Prime-Ausgabe
     Screen('TextSize', window, introSize);
     Screen('TextFont', window, 'Arial');
-    DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol);
+    DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol);  % ANPASSEN
     
     randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
     primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
