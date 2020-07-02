@@ -70,7 +70,7 @@ goTrialPosMat(1,:) = [ones(1, (nGoTrials + addToEven)/nPrimes), 9*ones(1, (nGoTr
 % nogoTrialPosMat(1,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
 
     % Bestimmung der Targetpositionen (2. Zeile der Matrix; 0 für nogo-trial):
-goTrialPosMat(2,:) = repmat([1:((nGoTrials + addToEven)/nShowSamePos)], 1, 2);
+goTrialPosMat(2,:) = repmat([1:(nGoTrials/nShowSamePos + addToEven)], 1, nShowSamePos);
     
     % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
 allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
@@ -115,8 +115,6 @@ for i = 1:nTrials
         primeWord = 'eins';
     elseif randAllTrialMat(1,i) == 9
         primeWord = 'neun';
-    else
-        display wrong prime;
     end
     
     %#  Prime-Ausgabe
@@ -124,7 +122,7 @@ for i = 1:nTrials
     Screen('TextFont', window, 'Arial');
     DrawFormattedText(window, primeWord, 'center', 'center', stimCol);  % ANPASSEN
     
-    randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
+    randSoa1 = randsample(soa,1); % select random element from SOA Vector (500-800ms)
     primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
     
     %#  Fixationskreuz 2
@@ -140,7 +138,7 @@ for i = 1:nTrials
     targetText = int2str(randAllTrialMat(1,i));
 
     nPositions = nPositions_root^2; %#Gesamtzahl der Miniquadrate
-    square_length = big_square_length / nPositions_root %#Kantenlänge eines Miniquadrats
+    square_length = big_square_length / nPositions_root; %#Kantenlänge eines Miniquadrats
 
     %# Bestimme Bildschirmmitte
     x_center = windowSize(3) / 2;
@@ -180,7 +178,7 @@ for i = 1:nTrials
       end
     end
    
-    randSoa2 = randsample(soa,1)
+    randSoa2 = randsample(soa,1);
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);             
     
     %# Warten auf Reaktion der VP ------------------------------------
@@ -193,7 +191,7 @@ for i = 1:nTrials
     end
     
     if ButtonPress == 1
-        visoffset = GetSecs % zur Bestimmung der Gesamtdauer des Experiments
+        visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
         if randAllTrialMat(2, i) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
