@@ -108,7 +108,7 @@ for i = 1:nTrials
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
     
-    %# Targetausgabe
+    %# Targetausgabe ---------------------------------------------
     Screen('TextSize', window, square_txtSize );
     
     %# Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
@@ -155,14 +155,11 @@ for i = 1:nTrials
         x = x + square_length;
       endif
     end
-    
-    %---------
-    % Screen('TextSize', window, stimSize);
-    % DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); 
+   
     randSoa2 = randsample(soa,1)
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);             
     
-    %# Warten auf Reaktion der VP
+    %# Warten auf Reaktion der VP ------------------------------------
     ButtonPress=0;
     
     while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
