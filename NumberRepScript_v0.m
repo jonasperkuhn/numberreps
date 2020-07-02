@@ -95,10 +95,20 @@ for i = 1:nTrials
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     Screen('Flip', window);
     
+    %# Prime-Bestimmung
+    
+    if randAllTrialMat(1,i) == 1
+        primeWord = 'eins';
+    elif randAllTrialMat(1,i) == 9
+        primeWord = 'neun';
+    else
+        display wrong prime;
+    end
+    
     %#  Prime-Ausgabe
     Screen('TextSize', window, introSize);
     Screen('TextFont', window, 'Arial');
-    DrawFormattedText(window, primeCondVec(i), 'center', 'center', stimCol);  % ANPASSEN
+    DrawFormattedText(window, primeWord, 'center', 'center', stimCol);  % ANPASSEN
     
     randSoa1 = randsample(soa,1) % select random element from SOA Vector (500-800ms)
     primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
