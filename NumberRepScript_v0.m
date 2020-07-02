@@ -21,8 +21,8 @@ introText = 'Herzlich willkommen zu unserem Experiment!';
 instructions = 'Im folgenden Experiment.. Reaktion mit Leertaste... Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu starten' % Instruktion Ergänzen
 
 % Vordefinieren der Stimuli 
-einsTxt = 'Eins';
-neunTxt = 'Neun';
+% einsTxt = 'Eins';
+% neunTxt = 'Neun';
 einsNr = '1';
 neunNr = '9';
 distractor = '#';
@@ -64,7 +64,7 @@ goTrialPosMat(2,:) = repmat([1:(nGoTrials/nShowSamePos)], 1, 2);
 allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
 
     % Randomisierung der conditions:
-randAllTrialMat = allTrialMat(:, randperm(nTrials));
+randAllTrialMat = allTrialMat(:, randperm(nTrials)); % erste Spalte = target(1 vs 9), Spalte = Position des Targets (1-49)
 
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
@@ -111,25 +111,25 @@ for i = 1:nTrials
     %# Targetausgabe
     Screen('TextSize', window, square_txtSize );
     
-    %Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
+    %# Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
     targetPosition = randAllTrialMat(2,i);
     targetText = int2str(randAllTrialMat(1,i));
 
     nPositions = nPositions_root^2; #Gesamtzahl der Miniquadrate
     square_length = big_square_length / nPositions_root #Kantenlänge eines Miniquadrats
 
-    %Bestimme Bildschirmmitte
+    %# Bestimme Bildschirmmitte
     x_center = windowSize(3) / 2;
     y_center = windowSize(4) / 2;
 
-    % Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
+    %# Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
     x_start = x_center - (floor(nPositions_root/2) * square_length);
     y_start = y_center - (floor(nPositions_root/2) * square_length);
 
     x = x_start;
     y = y_start;
     
-    % Schleife die durch alle Miniquadrate geht
+    %# Schleife die durch alle Miniquadrate geht
     for iPosition = 1: nPositions
 
       % An richtiger Position Target, sonst Distraktor bereithalten
@@ -174,13 +174,13 @@ for i = 1:nTrials
     if ButtonPress == 1
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
-        if primeCondVec(i) == targetCondVec(i) & usedButton == respKey
+        if randAllTrialMat(i 2) ~= 0 & usedButton == respKey
             resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
         else
             resCorrect = 0;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-    elseif ButtonPress == 0 & primeCondVec(i) ~= targetCondVec(i)
+    elseif ButtonPress == 0 & randAllTrialMat(i 2) == 0
             resCorrect = 0; % ist schon default
             GoTrial = 0;
     end
