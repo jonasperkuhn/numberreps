@@ -5,6 +5,12 @@
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
 
+nGoTrials = 98; % Anzahl trials, in denen ein target gezeigt wird
+ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
+nTrials = round(nGoTrials/ratioGoNogo);
+nPrimes = 2; % 1 und 9
+nShowSamePos = 2; % wie oft die targets an derselben Positon gezeigt werden
+
 % Vordefinieren der Textparameter
 txtCol = [255 255 255];
 introSize = 64;
@@ -24,6 +30,14 @@ stimCol = [0 0 0];
 stimSize = 30;            % Anpassen
 primeFixSize = 50;
 
+square_bkgrColor = [255 255 255]; % Hintergrundfarbe
+square_fontColor = [0 0 0]; % Target/Distraktor Farbe
+square_txtSize = 42; % Target/Distraktor (Text)Größe
+nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
+big_square_length = 910; % Kantenlänge des Gesamtquadrats in Pixel
+puffer_zone = 15; % Mindestabstand der Symbole zum Rand eines Miniquadrats in Pixel
+
+
 % Tastenreaktion, Darbietungsdauer, SOA etc.
 respKey = KbName('Space'); % Reaktion auf Go-trials mit Leertaste
 soa = [0.5:0.001:0.8];  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
@@ -31,40 +45,26 @@ primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
 respTime =  3;  % 3s Maximale Response Time bevor es zum nächsten Trial weiter geht
 
 
-% ResultMatrix vorbereiten + VP NR
-NResVar = 14; % Anzahl Resultatvariablen
-resMatrix = zeros(nTrials, NResVar);
-iVp = input('Versuchspersonennummer: ');
-% eventuell auch:  iBlock = input('Blocknummer: ');
+%%  Randomisierung der Bedingungen
+nNogoTrials = nTrials-nGoTrials;
 
+    % getrennte Matrizen zur Bestimmung der go und nogo trials:
+goTrialPosMat = ones(2, nGoTrials);
+nogoTrialPosMat = zeros(2, nNogoTrials);
 
-% Positions-Matrix
+    % Bestimmung der Targets (1. Zeile der Matrix):
+goTrialPosMat(1,:) = [ones(1, nGoTrials/nPrimes), 9*ones(1, nGoTrials/nPrimes)];
+% nogoTrialPosMat(1,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
 
-
-%% *% Randomisierung der Bedingungen*
-nGoTrials = nTrials*ratioGoNogo;
-nNogoTrials = round(nTrials*(1-ratioGoNogo));
-
-    %Matrizen zur Bestimmung der go und nogo trials:
-goCondMat = ones(2, nTrials*5/6);
-nogoCondMat = -ones(2, nTrials*1/6);
-
-goCondMat(2,:) = [ones(1, nGoTrials/nPrimes), 9*ones(1, nGoTrials/nPrimes)];
-nogoCondMat(2,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
-
-    % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
-allCondVec = [goCondMat, nogoCondMat];
-    % Randomisierung der conditions:
-randAllCondVec = allCondVec(:, randperm(nTrials));
-
-
-
-primeCondVec = % finaler Prime Condition Vector
-tarCondVec = % finaler Target Condition Vector
-
-for i = 1:(nTrials/()
+    % Bestimmung der Targetpositionen (2. Zeile der Matrix; 0 für nogo-trial):
+goTrialPosMat(2,:) = repmat([1:(nGoTrials/nShowSamePos)], 1, 2);
     
-end
+    % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
+allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
+
+    % Randomisierung der conditions:
+randAllTrialMat = allTrialMat(:, randperm(nTrials));
+
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
@@ -108,8 +108,56 @@ for i = 1:nTrials
     primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
     
     %# Targetausgabe
-    Screen('TextSize', window, stimSize);
-    DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); % Passt das so mit der Konstruktion der Matrix + Randomisierung überein?
+    Screen('TextSize', window, square_txtSize );
+    
+    %Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
+    targetPosition = randAllTrialMat(2,i);
+    targetText = int2str(randAllTrialMat(1,i));
+
+    nPositions = nPositions_root^2; #Gesamtzahl der Miniquadrate
+    square_length = big_square_length / nPositions_root #Kantenlänge eines Miniquadrats
+
+    %Bestimme Bildschirmmitte
+    x_center = windowSize(3) / 2;
+    y_center = windowSize(4) / 2;
+
+    % Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
+    x_start = x_center - (floor(nPositions_root/2) * square_length);
+    y_start = y_center - (floor(nPositions_root/2) * square_length);
+
+    x = x_start;
+    y = y_start;
+    
+    % Schleife die durch alle Miniquadrate geht
+    for iPosition = 1: nPositions
+
+      % An richtiger Position Target, sonst Distraktor bereithalten
+      if iPosition == targetPosition;
+        positionText = targetText;
+      else
+        positionText = distractor;
+      endif
+
+      % Jitter um die Position innerhalb des Miniquadrats generieren mit definiertem Abstand zum Rand
+      x_jitter = x - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
+      y_jitter = y - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
+
+      %Zeichnen des Target/Distraktor
+      DrawFormattedText(window, positionText, x_jitter, y_jitter, square_fontColor);
+
+      % Positionsberechnung der Mitte des nächsten Miniquadrats. 
+      % Nach jeder vollen Zeile wird die nächste Zeile gezeichnet.
+      if mod(iPosition,nPositions_root) == 0
+        x = x_start;
+        y = y + square_length;
+      else
+        x = x + square_length;
+      endif
+    end
+    
+    %---------
+    % Screen('TextSize', window, stimSize);
+    % DrawFormattedText(window, tarCondVec(i), position(i) , stimCol); 
     randSoa2 = randsample(soa,1)
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);                % überprüfen
     
