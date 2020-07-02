@@ -190,7 +190,7 @@ for i = 1:nTrials
     end
         
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
-    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 targetCondVec(i) GoTrial resCorrect visonset visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(i 1) randAllTrialMat(i 2) GoTrial resCorrect visonset visoffset ButtonPress Button rt]; % Resultatvariablen Ergänzen
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
