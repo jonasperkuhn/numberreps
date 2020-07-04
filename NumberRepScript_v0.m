@@ -69,12 +69,14 @@ goTrialPosMat(1,:) = [ones(1, (nGoTrials + addToEven)/nPrimes), 9*ones(1, (nGoTr
 % nogoTrialPosMat(1,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
 
     % Bestimmung der Targetpositionen (2. Zeile der Matrix; 0 für nogo-trial):
-goTrialPosMat(2,:) = repmat([1:(nGoTrials/nShowSamePos + addToEven)], 1, nShowSamePos);
-    
+goTrialPosMat(2,:) = (repmat([1:(nGoTrials/nShowSamePos + addToEven)], 1, nShowSamePos));
+    % Randomisierung der Targetpositionen:
+goTrialPosMat(2,:) = goTrialPosMat(2,randperm(nGoTrials + addToEven));
+
     % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
 allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
 
-    % Randomisierung der conditions:
+    % Randomisierung der conditions (go vs nogo):
 randAllTrialMat = allTrialMat(:, randperm(nTrials)); % erste Spalte = target(1 vs 9), Spalte = Position des Targets (1-49)
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
