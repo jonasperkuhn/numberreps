@@ -21,11 +21,10 @@ iVp = input('Versuchspersonennummer: ');
 % Vordefinieren der Textparameter
 txtCol = [255 255 255];
 introSize = 64;
-txtSize = 30;
+txtSize = 50;
 
 introText = 'Herzlich willkommen zu unserem Experiment!'; 
-instructions = 'Im folgenden Experiment.. Reaktion mit Leertaste... Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu starten' % Instruktion Ergänzen
-
+instructions = 'Im folgenden Experiment wollen wir Ihre Reaktionsgeschwindigkeit bei einer einer visuellen Suchaufgabe messen. \n \n Hierzu wird Ihnen zuerst ein Fixationskreuz präsentiert, gefolgt von dem Zahlenwort "Eins" oder "Neun". \n Nachdem ein weiteres Fixationskreuz präsentiert wird, erscheinen mehrere Rauten-Symbole (#) gleichzeitig über dem \n Bildschirm verteilt. Unter den Rauten-Symbolen kann sich in einigen Durchgängen zusätzlich \n das zuvor gezeigte Zahlenwort in numerischer Form (1 vs. 9) befinden. \n \n Ihre Aufgebe ist es so schnell wie möglich mit der Leertaste zu reagieren, falls sich das Zahlenwort unter den Rauten befindet. \n Falls dies nicht der Fall ist, ist keine Reaktion erforderlich. \n \n Solange ein Fixationskreuz dargeboten ist bitten wir Sie ihren Bick auf die Mitte des Bildschirms gerichtet zu lassen. \n \n \n Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu beginnen';
 % Vordefinieren der Stimuli 
 % einsTxt = 'Eins';
 % neunTxt = 'Neun';
@@ -34,7 +33,7 @@ neunNr = '9';
 distractor = '#';
 stimCol = [0 0 0];
     % stimSize = 30;            
-primeFixSize = 50;
+primeFixSize = 60;
  
 %# Target Matrix 
 square_bkgrColor = [255 255 255]; % Hintergrundfarbe
@@ -101,9 +100,9 @@ KbStrokeWait;
 
 
 % Experiment--------------------------------------------------------------
-visonset = GetSecs;  % Zeitmarker für Begin des trials
-
 for i = 1:nTrials
+    visonset = GetSecs;  % Zeitmarker für Begin des trials
+    
     %# Fixationskreuz 1
     Screen('TextSize', window, primeFixSize);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
@@ -221,7 +220,7 @@ end % Ende der Trialschleife ---------------------------------------------------
 filename = ['vp' num2str(iVp, '%0.2d') '.mat']; % '%0.2d': mit führender null
 save(filename,'resMatrix');
 
-dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t Position \t GoTrial \t resCorrect \t RT \t expBegin \t exEnde \t buttonPress \t buttonUsed '),'delimiter','')
+dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t Position \t GoTrial \t resCorrect \t RT \t trialBegin \t trialEnde \t buttonPress \t buttonUsed '),'delimiter','')
 dlmwrite(filename, results, '-append', 'precision',6,'delimiter','\t')
 
 % Feedback an die VP
