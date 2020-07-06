@@ -69,14 +69,15 @@ goTrialPosMat(1,:) = [ones(1, (nGoTrials + addToEven)/nPrimes), 9*ones(1, (nGoTr
 % nogoTrialPosMat(1,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
 
     % Bestimmung der Targetpositionen (2. Zeile der Matrix; 0 für nogo-trial):
-goTrialPosMat(2,:) = repmat([1:(nGoTrials/nShowSamePos + addToEven)], 1, nShowSamePos);
-    
+goTrialPosMat(2,:) = (repmat([1:(nGoTrials/nShowSamePos + addToEven)], 1, nShowSamePos));
+    % Randomisierung der Targetpositionen:
+goTrialPosMat(2,:) = goTrialPosMat(2,randperm(nGoTrials + addToEven));
+
     % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
 allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
 
-    % Randomisierung der conditions:
+    % Randomisierung der conditions (go vs nogo):
 randAllTrialMat = allTrialMat(:, randperm(nTrials)); % erste Spalte = target(1 vs 9), Spalte = Position des Targets (1-49)
-
 
 % PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
@@ -102,18 +103,21 @@ KbStrokeWait;
 % Experiment--------------------------------------------------------------
 for i = 1:nTrials
     visonset = GetSecs;  % Zeitmarker für Begin des trials
-    
     %# Fixationskreuz 1
     Screen('TextSize', window, primeFixSize);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     Screen('Flip', window);
     
     %# Prime-Bestimmung
-    
     if randAllTrialMat(1,i) == 1
         primeWord = 'eins';
     elseif randAllTrialMat(1,i) == 9
         primeWord = 'neun';
+
+    else
+        primeWordArray = {'eins' 'neun'};
+        primeWordIndex = randi(2);
+        primeWord = primeWordArray{primeWordIndex};
     end
     
     %#  Prime-Ausgabe
@@ -204,15 +208,21 @@ for i = 1:nTrials
             GoTrial = 0;
         end
     elseif ButtonPress == 0 & randAllTrialMat(2, i) == 0 % falls NoGo Trial & keine taste gedrückt
-            resCorrect = 1; 
-            GoTrial = 0;
-    else 
-        resCorrect = -99; 
+        visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments            
+        rt = 0;
+        resCorrect = 1; 
+        GoTrial = 0;
+    else
+        visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments            
+        usedButton = -99;
+        rt = 0;
+        resCorrect = -99;
         GoTrial = 1;
+        rt = 0;
     end
         
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
-    % resMatrix(1,i:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton]; % Resultatvariablen Ergänzen
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton]; % Resultatvariablen Ergänzen
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
@@ -227,7 +237,7 @@ dlmwrite(filename, results, '-append', 'precision',6,'delimiter','\t')
 correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
 meanRT = 1000*mean(resMatrix( find(resMatrix(:,8)==1),9));    % Index der respCorrect Spalte ergänzen
 
-feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms'];
+feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms. Press spacebar to exit the experiment.'];
 Screen('TextSize', window, introSize ); 
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
