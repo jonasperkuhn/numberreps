@@ -11,10 +11,9 @@ nGoTrials = (nPositions_root^2)*nShowSamePos; % Anzahl trials, in denen ein targ
 ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
 nTrials = round(nGoTrials/ratioGoNogo);
 nPrimes = 2; % 1 und 9
-NResVar = 13;
 
 % ResultMatrix vorbereiten + VP NR
-NResVar = 14; % Anzahl Resultatvariablen
+NResVar = 13; % Anzahl Resultatvariablen
 resMatrix = zeros(nTrials, NResVar);
 iVp = input('Versuchspersonennummer: ');
 
@@ -99,14 +98,15 @@ DrawFormattedText(window, instructions, 'center', yIns, txtCol);  % Anpassen, un
 Screen('Flip', window);
 KbStrokeWait;
 
-
 % Experiment--------------------------------------------------------------
-for i = 1:nTrials
+for i = 1:3
     visonset = GetSecs;  % Zeitmarker für Begin des trials
     %# Fixationskreuz 1
     Screen('TextSize', window, primeFixSize);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     Screen('Flip', window);
+    
+
     
     %# Prime-Bestimmung
     if randAllTrialMat(1,i) == 1
@@ -120,13 +120,20 @@ for i = 1:nTrials
         primeWord = primeWordArray{primeWordIndex};
     end
     
+
+    
     %#  Prime-Ausgabe
     Screen('TextSize', window, introSize);
     Screen('TextFont', window, 'Arial');
     DrawFormattedText(window, primeWord, 'center', 'center', stimCol);  % ANPASSEN
     
-    randSoa1 = randsample(soa,1); % select random element from SOA Vector (500-800ms)
+
+    
+    randSoa1 = soa(randi([1,301]));
+    %randSoa1 = randsample(soa,1); % select random element from SOA Vector (500-800ms)
     primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
+    
+
     
     %#  Fixationskreuz 2
     Screen('TextSize', window, primeFixSize);
@@ -143,6 +150,8 @@ for i = 1:nTrials
     nPositions = nPositions_root^2; %#Gesamtzahl der Miniquadrate
     square_length = big_square_length / nPositions_root; %#Kantenlänge eines Miniquadrats
 
+
+    
     %# Bestimme Bildschirmmitte
     x_center = windowSize(3) / 2;
     y_center = windowSize(4) / 2;
@@ -181,17 +190,21 @@ for i = 1:nTrials
       end
     end
    
-    randSoa2 = randsample(soa,1);
+    randSoa2 = soa(randi([1,301]));
+    %randSoa2 = randsample(soa,1);
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);             
     
     %# Warten auf Reaktion der VP ------------------------------------
     ButtonPress=0;
+
     
     while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
         [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
         ButtonPress =  keyIsDown;
         WaitSecs(.001); % um system zu entlasten
     end
+    
+    
     
     if ButtonPress == 1
         visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments
@@ -206,21 +219,24 @@ for i = 1:nTrials
         elseif randAllTrialMat(2, i) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
             resCorrect = 0; 
             GoTrial = 0;
-        end
-    elseif ButtonPress == 0 & randAllTrialMat(2, i) == 0 % falls NoGo Trial & keine taste gedrückt
+
+        elseif ButtonPress == 0 & randAllTrialMat(2, i) == 0 % falls NoGo Trial & keine taste gedrückt
         visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments            
         rt = 0;
         resCorrect = 1; 
         GoTrial = 0;
-    else
+        else
         visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments            
         usedButton = -99;
         rt = 0;
         resCorrect = -99;
         GoTrial = 1;
         rt = 0;
+        end
     end
-        
+    
+ 
+    
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
     resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton]; % Resultatvariablen Ergänzen
         
@@ -230,8 +246,8 @@ end % Ende der Trialschleife ---------------------------------------------------
 filename = ['vp' num2str(iVp, '%0.2d') '.mat']; % '%0.2d': mit führender null
 save(filename,'resMatrix');
 
-dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t Position \t GoTrial \t resCorrect \t RT \t trialBegin \t trialEnde \t buttonPress \t buttonUsed '),'delimiter','')
-dlmwrite(filename, results, '-append', 'precision',6,'delimiter','\t')
+dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t Position \t GoTrial \t resCorrect \t RT \t trialBegin \t trialEnde \t buttonPress \t buttonUsed '),'delimiter','\t')
+dlmwrite(filename, resMatrix, '-append', 'precision',6,'delimiter','\t')
 
 % Feedback an die VP
 correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
