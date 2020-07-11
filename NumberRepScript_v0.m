@@ -1,16 +1,27 @@
 % Experimentalskript 'Number representations' fuer Steuerung psychol.
 % Experimente 2020
 
-% Vordefinieren der Grundparameter
+% Vordefinieren der Inputparameter
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 bkgrCol = [ 128 128 128 ];
 
 nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
 nShowSamePos = 1; % wie oft die targets an derselben Positon gezeigt werden
-nGoTrials = (nPositions_root^2)*nShowSamePos; % Anzahl trials, in denen ein target gezeigt wird
-ratioGoNogo = 5/6; % Ratio, wie viele go vs nogo trials gezeigt werden
-nTrials = round(nGoTrials/ratioGoNogo);
-nPrimes = 2; % 1 und 9
+nPrimes = 2; % 1 und 9, bisher hard gecoded
+oddsNogoGo = 1/5; % Approx. Ratio, wie viele nogo trials pro go trial gezeigt werden (=odds für nogo)
+
+% Berechnen der Grundvariablen aus Inputparametern
+    %Gesamtanzahl der Miniquadrate
+nPos = nPositions_root^2;
+
+    %Trialanzahl
+nGoTrialsPerPrime = (nPos)*nShowSamePos;
+nGoTrials = nGoTrialsPerPrime*nPrimes;% Anzahl trials, in denen ein target gezeigt wird
+
+nNogoTrialsPerPrime = round((nGoTrials*oddsNogoGo)/nPrimes);
+nNogoTrials = nNogoTrialsPerPrime*nPrimes;% Anzahl trials, in denen kein target gezeigt wird
+
+nTrials = nGoTrials + nNogoTrials;% Anzahl trials insg.
 
 % ResultMatrix vorbereiten + VP NR
 NResVar = 13; % Anzahl Resultatvariablen
@@ -50,30 +61,44 @@ respTime =  3;  % 3s Maximale Response Time bevor es zum nächsten Trial weiter 
 
 
 %%  Randomisierung der Bedingungen
-nNogoTrials = nTrials-nGoTrials;
 
-    % getrennte Matrizen zur Bestimmung der go und nogo trials:
-if mod(nGoTrials,2) == 1 %  rest -> ungerade zahl
-    addToEven = 1;
-else
-    addToEven = 0;
-end
-   
-nTrials = round((nGoTrials + addToEven)/ratioGoNogo);
-goTrialPosMat = ones(2, nGoTrials + addToEven);
-nogoTrialPosMat = zeros(2, nNogoTrials);
+% if mod(nGoTrials,2) == 1 %  rest -> ungerade zahl
+%     addToEven = 1;
+% else
+%     addToEven = 0;
+% end
 
-    % Bestimmung der Targets (1. Zeile der Matrix):
-goTrialPosMat(1,:) = [ones(1, (nGoTrials + addToEven)/nPrimes), 9*ones(1, (nGoTrials + addToEven)/nPrimes)];
-% nogoTrialPosMat(1,:) = [ones(1, nNogoTrials/nPrimes), 9*ones(1, nNogoTrials/nPrimes)];
+       % getrennte Matrizen zur Bestimmung der go und nogo trials:
+% nTrials = round((nGoTrialsPerPrime + addToEven)/ratioGoNogo);
 
-    % Bestimmung der Targetpositionen (2. Zeile der Matrix; 0 für nogo-trial):
-goTrialPosMat(2,:) = (repmat([1:(nGoTrials/nShowSamePos + addToEven)], 1, nShowSamePos));
-    % Randomisierung der Targetpositionen:
-goTrialPosMat(2,:) = goTrialPosMat(2,randperm(nGoTrials + addToEven));
+    % Bestimmung der Targets per Prime:
+goTrialTargMat1 = [ones(1, nGoTrialsPerPrime)];
+goTrialTargMat9 = [9*ones(1, nGoTrialsPerPrime)];
+
+    % Bestimmung der Targetpositionen per Prime:
+goTrialPosMat1 = repmat([1:nPos], 1, nShowSamePos);
+goTrialPosMat9 = repmat([1:nPos], 1, nShowSamePos);
+
+    % Randomisierung der Targetpositionen per Prime:
+goTrialPosMat1_rand = goTrialPosMat1(randperm(nGoTrialsPerPrime));
+goTrialPosMat9_rand = goTrialPosMat9(randperm(nGoTrialsPerPrime));
+
+    % Erstellen nogo-trials:
+nogoTrialMat = zeros(2, nNogoTrials);
+nogoTrialMat(1,:) = [ones(1, nNogoTrialsPerPrime), 9*ones(1, nNogoTrialsPerPrime)];
+
+% Erstellen der Gesamtmatrix:
+% goTrialPosMat = ones(2, nGoTrials);
+
+
+    % Zusammenführen der Targets für go-trials(1. Zeile der Matrix):
+goTrialMat(1,:) = [goTrialTargMat1, goTrialTargMat9];
+
+    % Zusammenführen der Targetpositionen für go-trials(2. Zeile der Matrix):
+goTrialMat(2,:) = [goTrialPosMat1_rand, goTrialPosMat9_rand];
 
     % gemeinsame Matrix für alle trials (go + nogo und zugehörige primes):
-allTrialMat = [goTrialPosMat, nogoTrialPosMat]; % 1. Zeile target, 2. Zeile target position
+allTrialMat = [goTrialMat, nogoTrialMat]; % 1. Zeile target, 2. Zeile target position (0 für nogo-trial)
 
     % Randomisierung der conditions (go vs nogo):
 randAllTrialMat = allTrialMat(:, randperm(nTrials)); % erste Spalte = target(1 vs 9), Spalte = Position des Targets (1-49)
@@ -147,7 +172,7 @@ for i = 1:3
     targetPosition = randAllTrialMat(2,i);
     targetText = int2str(randAllTrialMat(1,i));
 
-    nPositions = nPositions_root^2; %#Gesamtzahl der Miniquadrate
+    nPos = nPositions_root^2; %#Gesamtzahl der Miniquadrate
     square_length = big_square_length / nPositions_root; %#Kantenlänge eines Miniquadrats
 
 
@@ -164,7 +189,7 @@ for i = 1:3
     y = y_start;
     
     %# Schleife die durch alle Miniquadrate geht
-    for iPosition = 1: nPositions
+    for iPosition = 1: nPos
 
     %# An richtiger Position Target, sonst Distraktor bereithalten
       if iPosition == targetPosition;
