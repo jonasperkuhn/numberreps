@@ -1,20 +1,47 @@
 % Experimentalskript 'Number representations' fuer Steuerung psychol.
 % Experimente 2020
 
-% Vordefinieren der Inputparameter
+% Vordefinieren der Inputparameter----------------------------------------
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
-bkgrCol = [ 128 128 128 ];
 
 nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
-nShowSamePos = 1; % wie oft die targets an derselben Positon gezeigt werden
-nPrimes = 2; % 1 und 9, bisher hard gecoded
+
+nShowSamePos = 1; % wie oft die Targets an derselben Position gezeigt werden
+nPrimes = 2; % Anzahl Primes; 1 und 9, bisher hard gecoded
 oddsNogoGo = 1/5; % Approx. Ratio, wie viele nogo trials pro go trial gezeigt werden (=odds für nogo)
 
-% Berechnen der Grundvariablen aus Inputparametern
-    %Gesamtanzahl der Miniquadrate
-nPos = nPositions_root^2;
+% Target Matrix 
+big_square_length = 910; % Kantenlänge des Gesamtquadrats in Pixel
+puffer_zone = 15; % Mindestabstand der Symbole zum Rand eines Miniquadrats in Pixel
+distractor = '#'; %Distraktor Symbol
 
-    %Trialanzahl
+% Vordefinieren von Text und Hintergrund
+bkgrCol = [ 255 255 255 ]; % Hintergrundfarbe
+
+txtCol = [0 0 0]; %Textfarbe Allgemein
+txtCol_prime = [0 0 0]; %Textfarbe Prime
+txtCol_square = [0 0 0]; % Textfarbe Target/Distraktor
+
+txtSize_intro = 40; %Textgröße Intro
+txtSize_description = 30; %Textgröße Introbeschreibung
+txtSize_prime = 60; %Textgröße Primestimulus & Fixationskreuz
+txtSize_square = 42; % Textgröße Target/Distraktor
+
+introText = 'Herzlich willkommen zu unserem Experiment!'; 
+instructions = 'Im folgenden Experiment wollen wir Ihre Reaktionsgeschwindigkeit bei einer einer visuellen Suchaufgabe messen. \n \n Hierzu wird Ihnen zuerst ein Fixationskreuz präsentiert, gefolgt von dem Zahlenwort "Eins" oder "Neun". \n Nachdem ein weiteres Fixationskreuz präsentiert wird, erscheinen mehrere Rauten-Symbole (#) gleichzeitig über dem \n Bildschirm verteilt. Unter den Rauten-Symbolen kann sich in einigen Durchgängen zusätzlich \n das zuvor gezeigte Zahlenwort in numerischer Form (1 vs. 9) befinden. \n \n Ihre Aufgebe ist es so schnell wie möglich mit der Leertaste zu reagieren, falls sich das Zahlenwort unter den Rauten befindet. \n Falls dies nicht der Fall ist, ist keine Reaktion erforderlich. \n \n Solange ein Fixationskreuz dargeboten ist bitten wir Sie ihren Bick auf die Mitte des Bildschirms gerichtet zu lassen. \n \n \n Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu beginnen';
+
+% Tastenreaktion, Darbietungsdauer, SOA etc.
+respKey = KbName('Space'); % Reaktion auf Go-trials mit Leertaste
+soa = [0.5:0.001:0.8];  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
+primeDur = 1; % Darbeitungszeit für den Prime in Sekunden
+respTime =  3; % Maximale Response Time bevor es zum nächsten Trial weiter geht in Sekunden
+
+%-----------------------------------------------------------------------------------------
+% Berechnen der Grundvariablen aus Inputparametern----------------------------------------
+
+nPos = nPositions_root^2; %Gesamtanzahl der Miniquadrate d.h. Positionen
+
+%Trialanzahl
 nGoTrialsPerPrime = (nPos)*nShowSamePos;
 nGoTrials = nGoTrialsPerPrime*nPrimes;% Anzahl trials, in denen ein target gezeigt wird
 
@@ -26,50 +53,8 @@ nTrials = nGoTrials + nNogoTrials;% Anzahl trials insg.
 % ResultMatrix vorbereiten + VP NR
 NResVar = 13; % Anzahl Resultatvariablen
 resMatrix = zeros(nTrials, NResVar);
+
 iVp = input('Versuchspersonennummer: ');
-
-% Vordefinieren der Textparameter
-txtCol = [255 255 255];
-introSize = 64;
-txtSize = 50;
-
-introText = 'Herzlich willkommen zu unserem Experiment!'; 
-instructions = 'Im folgenden Experiment wollen wir Ihre Reaktionsgeschwindigkeit bei einer einer visuellen Suchaufgabe messen. \n \n Hierzu wird Ihnen zuerst ein Fixationskreuz präsentiert, gefolgt von dem Zahlenwort "Eins" oder "Neun". \n Nachdem ein weiteres Fixationskreuz präsentiert wird, erscheinen mehrere Rauten-Symbole (#) gleichzeitig über dem \n Bildschirm verteilt. Unter den Rauten-Symbolen kann sich in einigen Durchgängen zusätzlich \n das zuvor gezeigte Zahlenwort in numerischer Form (1 vs. 9) befinden. \n \n Ihre Aufgebe ist es so schnell wie möglich mit der Leertaste zu reagieren, falls sich das Zahlenwort unter den Rauten befindet. \n Falls dies nicht der Fall ist, ist keine Reaktion erforderlich. \n \n Solange ein Fixationskreuz dargeboten ist bitten wir Sie ihren Bick auf die Mitte des Bildschirms gerichtet zu lassen. \n \n \n Drücken Sie bitte eine beliebige Taste um mit dem Experiment zu beginnen';
-% Vordefinieren der Stimuli 
-% einsTxt = 'Eins';
-% neunTxt = 'Neun';
-einsNr = '1';
-neunNr = '9';
-distractor = '#';
-stimCol = [0 0 0];
-    % stimSize = 30;            
-primeFixSize = 60;
- 
-%# Target Matrix 
-square_bkgrColor = [255 255 255]; % Hintergrundfarbe
-square_fontColor = [0 0 0]; % Target/Distraktor Farbe
-square_txtSize = 42; % Target/Distraktor (Text)Größe
-big_square_length = 910; % Kantenlänge des Gesamtquadrats in Pixel
-puffer_zone = 15; % Mindestabstand der Symbole zum Rand eines Miniquadrats in Pixel
-
-
-% Tastenreaktion, Darbietungsdauer, SOA etc.
-respKey = KbName('Space'); % Reaktion auf Go-trials mit Leertaste
-soa = [0.5:0.001:0.8];  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
-primeDur = 1;        % 1000 ms Darbeitungszeit für das Primes
-respTime =  3;  % 3s Maximale Response Time bevor es zum nächsten Trial weiter geht
-
-
-%%  Randomisierung der Bedingungen
-
-% if mod(nGoTrials,2) == 1 %  rest -> ungerade zahl
-%     addToEven = 1;
-% else
-%     addToEven = 0;
-% end
-
-       % getrennte Matrizen zur Bestimmung der go und nogo trials:
-% nTrials = round((nGoTrialsPerPrime + addToEven)/ratioGoNogo);
 
     % Bestimmung der Targets per Prime:
 goTrialTargMat1 = [ones(1, nGoTrialsPerPrime)];
@@ -85,11 +70,10 @@ goTrialPosMat9_rand = goTrialPosMat9(randperm(nGoTrialsPerPrime));
 
     % Erstellen nogo-trials:
 nogoTrialMat = zeros(2, nNogoTrials);
+goTrialMat  = ones(2, nGoTrials);
 nogoTrialMat(1,:) = [ones(1, nNogoTrialsPerPrime), 9*ones(1, nNogoTrialsPerPrime)];
 
 % Erstellen der Gesamtmatrix:
-% goTrialPosMat = ones(2, nGoTrials);
-
 
     % Zusammenführen der Targets für go-trials(1. Zeile der Matrix):
 goTrialMat(1,:) = [goTrialTargMat1, goTrialTargMat9];
@@ -109,28 +93,31 @@ Screen('Preference','ConserveVRAM',64);
 [window, windowSize]=Screen('OpenWindow', useScreen, bkgrCol);
 flip_int = Screen('GetFlipInterval', window); % optimieren des timings
 HideCursor; % Mauszeiger verstecken
-yInt = windowSize(4)/2 - 600;   %ggf. Anpassen
-yIns = windowSize(4)/2 - 100;
+
 
 %%% Textausgabe Intro & Instruktionen
-Screen('TextSize', window, introSize ); % Introtext
+yInt = windowSize(4)/2 - (windowSize(4)/4); %Position Introtext
+yIns = windowSize(4)/2 - (windowSize(4)/6); %Position Instruktionen
+
+Screen('TextSize', window, txtSize_intro ); % Introtext
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, introText, 'center', yInt, txtCol);
 
-Screen('TextSize', window, txtSize ); % Instruktionen
-    % Screen('TextFont', window, 'Arial');
+Screen('TextSize', window, txtSize_description ); % Instruktionen
 DrawFormattedText(window, instructions, 'center', yIns, txtCol);  % Anpassen, unter dem intro text
 Screen('Flip', window);
+
 KbStrokeWait;
+
 
 % Experiment--------------------------------------------------------------
 for i = 1:3
     visonset = GetSecs;  % Zeitmarker für Begin des trials
+    
     %# Fixationskreuz 1
-    Screen('TextSize', window, primeFixSize);
+    Screen('TextSize', window, txtSize_prime);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     Screen('Flip', window);
-    
 
     
     %# Prime-Bestimmung
@@ -145,45 +132,38 @@ for i = 1:3
         primeWord = primeWordArray{primeWordIndex};
     end
     
-
     
     %#  Prime-Ausgabe
-    Screen('TextSize', window, introSize);
+    Screen('TextSize', window, txtSize_prime);
     Screen('TextFont', window, 'Arial');
-    DrawFormattedText(window, primeWord, 'center', 'center', stimCol);  % ANPASSEN
+    DrawFormattedText(window, primeWord, 'center', 'center', txtCol_prime);  % ANPASSEN
+    
+    randSoa1 = soa(randi([1,length(soa)])); % select random element from SOA Vector (500-800ms)
+
+    primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 ); % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
     
 
-    
-    randSoa1 = soa(randi([1,301]));
-    %randSoa1 = randsample(soa,1); % select random element from SOA Vector (500-800ms)
-    primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 );          % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
-    
-
-    
     %#  Fixationskreuz 2
-    Screen('TextSize', window, primeFixSize);
+    Screen('TextSize', window, txtSize_prime);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
     
-    %# Targetausgabe ---------------------------------------------
-    Screen('TextSize', window, square_txtSize );
+    %---------Targetausgabe ---------------------------------------------
+    Screen('TextSize', window, txtSize_square );
     
     %# Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
     targetPosition = randAllTrialMat(2,i);
     targetText = int2str(randAllTrialMat(1,i));
 
-    nPos = nPositions_root^2; %#Gesamtzahl der Miniquadrate
     square_length = big_square_length / nPositions_root; %#Kantenlänge eines Miniquadrats
-
-
     
     %# Bestimme Bildschirmmitte
     x_center = windowSize(3) / 2;
     y_center = windowSize(4) / 2;
 
     %# Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
-    x_start = x_center - (floor(nPositions_root/2) * square_length);
-    y_start = y_center - (floor(nPositions_root/2) * square_length);
+    x_start = x_center - (((nPositions_root/2)-0.5) * square_length);
+    y_start = y_center - (((nPositions_root/2)-0.5) * square_length);
 
     x = x_start;
     y = y_start;
@@ -199,11 +179,11 @@ for i = 1:3
       end
 
       % Jitter um die Position innerhalb des Miniquadrats generieren mit definiertem Abstand zum Rand
-      x_jitter = x - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
-      y_jitter = y - (square_length / 2) + randi([puffer_zone, square_length-puffer_zone]);
-
+      x_jitter = x - (square_length / 2) + randi([puffer_zone, round(square_length-puffer_zone)]);
+      y_jitter = y - (square_length / 2) + randi([puffer_zone, round(square_length-puffer_zone)]);
+      
       %Zeichnen des Target/Distraktor
-      DrawFormattedText(window, positionText, x_jitter, y_jitter, square_fontColor);
+      DrawFormattedText(window, positionText, x_jitter, y_jitter, txtCol_square);
 
       % Positionsberechnung der Mitte des nächsten Miniquadrats. 
       % Nach jeder vollen Zeile wird die nächste Zeile gezeichnet.
@@ -215,13 +195,12 @@ for i = 1:3
       end
     end
    
-    randSoa2 = soa(randi([1,301]));
-    %randSoa2 = randsample(soa,1);
+    randSoa2 = soa(randi([1,length(soa)])); %Randomisierter Zeitintervall
+
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);             
     
     %# Warten auf Reaktion der VP ------------------------------------
     ButtonPress=0;
-
     
     while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
         [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
@@ -229,8 +208,7 @@ for i = 1:3
         WaitSecs(.001); % um system zu entlasten
     end
     
-    
-    
+
     if ButtonPress == 1
         visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
@@ -260,7 +238,6 @@ for i = 1:3
         end
     end
     
- 
     
     %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
     resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton]; % Resultatvariablen Ergänzen
@@ -279,7 +256,7 @@ correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCo
 meanRT = 1000*mean(resMatrix( find(resMatrix(:,8)==1),9));    % Index der respCorrect Spalte ergänzen
 
 feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms. Press spacebar to exit the experiment.'];
-Screen('TextSize', window, introSize ); 
+Screen('TextSize', window, txtSize_intro ); 
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
 Screen('Flip', window);
