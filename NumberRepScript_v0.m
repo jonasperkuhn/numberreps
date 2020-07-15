@@ -183,6 +183,7 @@ for i = 1:3
       y_jitter = y - (square_length / 2) + randi([puffer_zone, round(square_length-puffer_zone)]);
       
       %Zeichnen des Target/Distraktor
+      Screen('TextFont', window, 'Arial');
       DrawFormattedText(window, positionText, x_jitter, y_jitter, txtCol_square);
 
       % Positionsberechnung der Mitte des nächsten Miniquadrats. 
@@ -255,7 +256,7 @@ dlmwrite(filename, resMatrix, '-append', 'precision',6,'delimiter','\t')
 correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
 meanRT = 1000*mean(resMatrix( find(resMatrix(:,8)==1),9));    % Index der respCorrect Spalte ergänzen
 
-feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms. Press spacebar to exit the experiment.'];
+feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms. Drücken Sie die Leertaste um das Experiment zu schließen.'];
 Screen('TextSize', window, txtSize_intro ); 
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
