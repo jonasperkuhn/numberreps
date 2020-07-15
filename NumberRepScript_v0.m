@@ -20,8 +20,8 @@ txtCol = [0 0 0]; %Textfarbe Allgemein
 txtCol_prime = [0 0 0]; %Textfarbe Prime
 txtCol_square = [0 0 0]; % Textfarbe Target/Distraktor
 
-txtSize_intro = 50; %Textgröße Intro
-txtSize_description = 40; %Textgröße Introbeschreibung
+txtSize_intro = 40; %Textgröße Intro
+txtSize_description = 30; %Textgröße Introbeschreibung
 txtSize_prime = 60; %Textgröße Primestimulus & Fixationskreuz
 txtSize_square = 42; % Textgröße Target/Distraktor
 
