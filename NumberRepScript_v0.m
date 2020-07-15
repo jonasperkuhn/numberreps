@@ -225,14 +225,14 @@ for i = 1:3 % nTrials einfügen
     elseif ButtonPress == 0 && randAllTrialMat(2, i) == 0 % falls keine taste gedrückt & NoGo Trial
         visoffset = GetSecs;
         usedButton = -99;
-        rt = 0;
+        rt = -99;
         resCorrect = 1;
         GoTrial = 0;
         
     else % wenn keine taste gedrückt & Go Trial
         visoffset = GetSecs;
         usedButton = -99;
-        rt = 0;
+        rt =-99;
         resCorrect = 0;
         GoTrial = 1;
     end
