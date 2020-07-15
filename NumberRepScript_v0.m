@@ -5,9 +5,7 @@
 useScreen = 0;  % 0 = genuiner Bildschirm / 1 = externer Bildschirm
 
 nPositions_root = 7; % Anzahl der Miniquadrate horizontal bzw. vertikal
-
 nShowSamePos = 1; % wie oft die Targets an derselben Position gezeigt werden
-nPrimes = 2; % Anzahl Primes; 1 und 9, bisher hard gecoded
 oddsNogoGo = 1/5; % Approx. Ratio, wie viele nogo trials pro go trial gezeigt werden (=odds für nogo)
 
 % Target Matrix 
@@ -22,8 +20,8 @@ txtCol = [0 0 0]; %Textfarbe Allgemein
 txtCol_prime = [0 0 0]; %Textfarbe Prime
 txtCol_square = [0 0 0]; % Textfarbe Target/Distraktor
 
-txtSize_intro = 40; %Textgröße Intro
-txtSize_description = 30; %Textgröße Introbeschreibung
+txtSize_intro = 50; %Textgröße Intro
+txtSize_description = 40; %Textgröße Introbeschreibung
 txtSize_prime = 60; %Textgröße Primestimulus & Fixationskreuz
 txtSize_square = 42; % Textgröße Target/Distraktor
 
@@ -32,37 +30,34 @@ instructions = 'Im folgenden Experiment wollen wir Ihre Reaktionsgeschwindigkeit
 
 % Tastenreaktion, Darbietungsdauer, SOA etc.
 respKey = KbName('Space'); % Reaktion auf Go-trials mit Leertaste
-soa = [0.5:0.001:0.8];  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
+soa = 0.5:0.001:0.8;  % Soa innerhalb des Trials: Vektor von 500-800 ms in 1ms Schritten    
 primeDur = 1; % Darbeitungszeit für den Prime in Sekunden
 respTime =  3; % Maximale Response Time bevor es zum nächsten Trial weiter geht in Sekunden
 
-%-----------------------------------------------------------------------------------------
-% Berechnen der Grundvariablen aus Inputparametern----------------------------------------
 
+%% Berechnen der Grundvariablen aus Inputparametern----------------------------------------
+
+nPrimes = 2; % Anzahl Primes; 1 und 9
 nPos = nPositions_root^2; %Gesamtanzahl der Miniquadrate d.h. Positionen
 
 %Trialanzahl
 nGoTrialsPerPrime = (nPos)*nShowSamePos;
-nGoTrials = nGoTrialsPerPrime*nPrimes;% Anzahl trials, in denen ein target gezeigt wird
+nGoTrials = nGoTrialsPerPrime*nPrimes; % Anzahl trials, in denen ein target gezeigt wird
 
 nNogoTrialsPerPrime = round((nGoTrials*oddsNogoGo)/nPrimes);
-nNogoTrials = nNogoTrialsPerPrime*nPrimes;% Anzahl trials, in denen kein target gezeigt wird
+nNogoTrials = nNogoTrialsPerPrime*nPrimes; % Anzahl trials, in denen kein target gezeigt wird
 
 nTrials = nGoTrials + nNogoTrials;% Anzahl trials insg.
 
-% ResultMatrix vorbereiten + VP NR
-NResVar = 13; % Anzahl Resultatvariablen
-resMatrix = zeros(nTrials, NResVar);
-
-iVp = input('Versuchspersonennummer: ');
+%% Erstellung Trial-Matrix und Randomisierung 
 
     % Bestimmung der Targets per Prime:
-goTrialTargMat1 = [ones(1, nGoTrialsPerPrime)];
-goTrialTargMat9 = [9*ones(1, nGoTrialsPerPrime)];
+goTrialTargMat1 = ones(1, nGoTrialsPerPrime);
+goTrialTargMat9 = 9*ones(1, nGoTrialsPerPrime);
 
     % Bestimmung der Targetpositionen per Prime:
-goTrialPosMat1 = repmat([1:nPos], 1, nShowSamePos);
-goTrialPosMat9 = repmat([1:nPos], 1, nShowSamePos);
+goTrialPosMat1 = repmat(1:nPos, 1, nShowSamePos);
+goTrialPosMat9 = repmat(1:nPos, 1, nShowSamePos);
 
     % Randomisierung der Targetpositionen per Prime:
 goTrialPosMat1_rand = goTrialPosMat1(randperm(nGoTrialsPerPrime));
@@ -87,7 +82,13 @@ allTrialMat = [goTrialMat, nogoTrialMat]; % 1. Zeile target, 2. Zeile target pos
     % Randomisierung der conditions (go vs nogo):
 randAllTrialMat = allTrialMat(:, randperm(nTrials)); % erste Spalte = target(1 vs 9), Spalte = Position des Targets (1-49)
 
-% PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
+%% ResultMatrix vorbereiten + VP NR
+NResVar = 13; % Anzahl Resultatvariablen
+resMatrix = zeros(nTrials, NResVar);
+
+iVp = input('Versuchspersonennummer: ');
+
+%% PsychToolbox initiieren & Instruktionen  --------------------------------------------------------------------------------------------------------
 Screen('Preference', 'SkipSyncTests', 1);
 Screen('Preference','ConserveVRAM',64);
 [window, windowSize]=Screen('OpenWindow', useScreen, bkgrCol);
@@ -99,80 +100,78 @@ HideCursor; % Mauszeiger verstecken
 yInt = windowSize(4)/2 - (windowSize(4)/4); %Position Introtext
 yIns = windowSize(4)/2 - (windowSize(4)/6); %Position Instruktionen
 
-Screen('TextSize', window, txtSize_intro ); % Introtext
+Screen('TextSize', window, txtSize_intro ); % Intro Ueberschrift
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, introText, 'center', yInt, txtCol);
 
 Screen('TextSize', window, txtSize_description ); % Instruktionen
-DrawFormattedText(window, instructions, 'center', yIns, txtCol);  % Anpassen, unter dem intro text
+DrawFormattedText(window, instructions, 'center', yIns, txtCol);
 Screen('Flip', window);
 
 KbStrokeWait;
 
 
-% Experiment--------------------------------------------------------------
-for i = 1:3
-    visonset = GetSecs;  % Zeitmarker für Begin des trials
-    
-    %# Fixationskreuz 1
+%% Experiment--------------------------------------------------------------
+for i = 1:3 % nTrials einfügen
+    visonset = GetSecs;  % Zeitmarker für Beginn des trials
+    %% Pre-Target
+    % Fixationskreuz 1
     Screen('TextSize', window, txtSize_prime);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     Screen('Flip', window);
 
     
-    %# Prime-Bestimmung
+    % Prime-Bestimmung
     if randAllTrialMat(1,i) == 1
         primeWord = 'eins';
     elseif randAllTrialMat(1,i) == 9
         primeWord = 'neun';
-
-    else
+    else % in nogo trials zufaelligen prime bestimmen
         primeWordArray = {'eins' 'neun'};
         primeWordIndex = randi(2);
         primeWord = primeWordArray{primeWordIndex};
     end
     
-    
-    %#  Prime-Ausgabe
+    %  Prime-Ausgabe
     Screen('TextSize', window, txtSize_prime);
     Screen('TextFont', window, 'Arial');
-    DrawFormattedText(window, primeWord, 'center', 'center', txtCol_prime);  % ANPASSEN
+    DrawFormattedText(window, primeWord, 'center', 'center', txtCol_prime);
     
-    randSoa1 = soa(randi([1,length(soa)])); % select random element from SOA Vector (500-800ms)
+    randSoa1 = soa(randi([1,length(soa)])); % zufälliges Element aus SOA Vector auswaehlen(500-800ms)
 
-    primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2 ); % überprüfen, -flip_int/2 notwendig da eh ransomisierte soa?
+    primeVisonset = Screen('Flip',window, visonset + randSoa1 - flip_int/2);
     
-
-    %#  Fixationskreuz 2
+    %  Fixationskreuz 2
     Screen('TextSize', window, txtSize_prime);
     DrawFormattedText(window, '+', 'center', 'center', [0 0 0]);
     primeVisoffset = Screen('Flip', window, primeVisonset + primeDur - flip_int/2);      
     
-    %---------Targetausgabe ---------------------------------------------
-    Screen('TextSize', window, txtSize_square );
-    
-    %# Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
-    targetPosition = randAllTrialMat(2,i);
-    targetText = int2str(randAllTrialMat(1,i));
+    %% Targetausgabe
+    Screen('TextSize', window, txtSize_square);
+    Screen('TextFont', window, 'Arial');
 
-    square_length = big_square_length / nPositions_root; %#Kantenlänge eines Miniquadrats
+    square_length = big_square_length / nPositions_root; % Kantenlänge eines Miniquadrats
     
-    %# Bestimme Bildschirmmitte
+    % Bestimme Bildschirmmitte
     x_center = windowSize(3) / 2;
     y_center = windowSize(4) / 2;
 
-    %# Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
+    % Setze Startposition auf Mitte vom ersten Miniquadrat obere linke Ecke
     x_start = x_center - (((nPositions_root/2)-0.5) * square_length);
     y_start = y_center - (((nPositions_root/2)-0.5) * square_length);
 
     x = x_start;
     y = y_start;
     
-    %# Schleife die durch alle Miniquadrate geht
+    % Auslesen der aktuellen Targetposition und des Targettext aus der randomisierten Matrix
+    targetPosition = randAllTrialMat(2,i);
+    targetText = int2str(randAllTrialMat(1,i));
+    
+    % Schleife, die durch alle Miniquadrate geht
     for iPosition = 1: nPos
 
-    %# An richtiger Position Target, sonst Distraktor bereithalten
-      if iPosition == targetPosition;
+    % An richtiger Position Target, sonst Distraktor bereithalten
+      if iPosition == targetPosition
         positionText = targetText;
       else
         positionText = distractor;
@@ -182,8 +181,7 @@ for i = 1:3
       x_jitter = x - (square_length / 2) + randi([puffer_zone, round(square_length-puffer_zone)]);
       y_jitter = y - (square_length / 2) + randi([puffer_zone, round(square_length-puffer_zone)]);
       
-      %Zeichnen des Target/Distraktor
-      Screen('TextFont', window, 'Arial');
+      % Zeichnen des Target/Distraktor
       DrawFormattedText(window, positionText, x_jitter, y_jitter, txtCol_square);
 
       % Positionsberechnung der Mitte des nächsten Miniquadrats. 
@@ -196,52 +194,52 @@ for i = 1:3
       end
     end
    
-    randSoa2 = soa(randi([1,length(soa)])); %Randomisierter Zeitintervall
+    randSoa2 = soa(randi([1,length(soa)])); % Randomisierter Zeitintervall (500-800 ms)
 
     targetVisonset = Screen('Flip',window, primeVisoffset + randSoa2 - flip_int/2);             
     
-    %# Warten auf Reaktion der VP ------------------------------------
+    % Warten auf Reaktion der VP ------------------------------------
     ButtonPress=0;
     
-    while ( ButtonPress == 0 ) & (GetSecs - targetVisonset) < respTime  %solange kein Button gedrückt und Zeit nicht abgelaufen
+    while ( ButtonPress == 0 ) && (GetSecs - targetVisonset) < respTime  % solange kein Button gedrückt und Zeit nicht abgelaufen
         [keyIsDown, rsecs, keyCode] = KbCheck;  % Zustand der Tastatur abfragen
         ButtonPress =  keyIsDown;
-        WaitSecs(.001); % um system zu entlasten
+        WaitSecs(.001); % um System zu entlasten
     end
     
-
     if ButtonPress == 1
         visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments
         usedButton = find(keyCode);
         rt = rsecs - targetVisonset; % Reaktionszeit
-        if randAllTrialMat(2, i) ~= 0 & usedButton == respKey % falls Go Trial & Space gedrückt
+        if randAllTrialMat(2, i) ~= 0 && usedButton == respKey % falls Go Trial & Space gedrückt
             resCorrect = 1;  % 1 = richtige Antwort, 0 = falsche Antwort
             GoTrial = 1;  % 1 = Go-Trial, 0 = No-Go Trial
-        elseif randAllTrialMat(2, i) ~= 0 & usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
-            resCorrect = 0;  
-            GoTrial = 1;  
+        elseif randAllTrialMat(2, i) ~= 0 && usedButton ~= respKey % falls Go Trial & NICHT Space gedrückt
+            resCorrect = 0;
+            GoTrial = 1;
         elseif randAllTrialMat(2, i) == 0  % falls NoGo Trial & irgendeine Taste gedrückt
-            resCorrect = 0; 
+            resCorrect = 0;
             GoTrial = 0;
-
-        elseif ButtonPress == 0 & randAllTrialMat(2, i) == 0 % falls NoGo Trial & keine taste gedrückt
-        visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments            
-        rt = 0;
-        resCorrect = 1; 
-        GoTrial = 0;
-        else
-        visoffset = GetSecs; % zur Bestimmung der Gesamtdauer des Experiments            
+        end
+        
+    elseif ButtonPress == 0 && randAllTrialMat(2, i) == 0 % falls keine taste gedrückt & NoGo Trial
+        visoffset = GetSecs;
         usedButton = -99;
         rt = 0;
-        resCorrect = -99;
-        GoTrial = 1;
+        resCorrect = 1;
+        GoTrial = 0;
+        
+    else % wenn keine taste gedrückt & Go Trial
+        visoffset = GetSecs;
+        usedButton = -99;
         rt = 0;
-        end
+        resCorrect = 0;
+        GoTrial = 1;
     end
     
     
-    %# Befüllen der Spalten der Ergebnismatrix      ANPASSEN
-    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton]; % Resultatvariablen Ergänzen
+    % Befüllen der Spalten der Ergebnismatrix
+    resMatrix(i,1:NResVar) = [iVp i randSoa1 randSoa2 randAllTrialMat(1, i) randAllTrialMat(2, i) GoTrial resCorrect rt visonset visoffset ButtonPress usedButton];
         
 end % Ende der Trialschleife ------------------------------------------------------------------------
 
@@ -252,16 +250,16 @@ save(filename,'resMatrix');
 dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t Position \t GoTrial \t resCorrect \t RT \t trialBegin \t trialEnde \t buttonPress \t buttonUsed '),'delimiter','\t')
 dlmwrite(filename, resMatrix, '-append', 'precision',6,'delimiter','\t')
 
-% Feedback an die VP
+%% Feedback an die VP
 correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
 meanRT = 1000*mean(resMatrix( find(resMatrix(:,8)==1),9));    % Index der respCorrect Spalte ergänzen
 
-feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' %\nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms. Drücken Sie die Leertaste um das Experiment zu schließen.'];
+feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' \nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms.\nDrücken Sie die Leertaste um das Experiment zu schließen.'];
 Screen('TextSize', window, txtSize_intro ); 
 Screen('TextFont', window, 'Arial');
 DrawFormattedText(window, feedbackText, 'center', 'center', [0 0 0]);
 Screen('Flip', window);
 KbStrokeWait;
 
-% alles schließen
+%% alles schließen
 Screen('CloseAll')
