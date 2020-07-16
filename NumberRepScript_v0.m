@@ -112,7 +112,7 @@ KbStrokeWait;
 
 
 %% Experiment--------------------------------------------------------------
-for i = 1:nTrials
+for i = 1:(nTrials/2)
     visonset = GetSecs;  % Zeitmarker für Beginn des trials
     %% Pre-Target
     % Fixationskreuz 1
@@ -251,7 +251,7 @@ dlmwrite(filename, sprintf('vp \t trial \t fixDur1 \t fixDur2 \t targetStim \t P
 dlmwrite(filename, resMatrix, '-append', 'precision',6,'delimiter','\t')
 
 %% Feedback an die VP
-correctRate = 100*length( find(resMatrix(:,8)==1) )/nTrials;  % Index der respCorrect Spalte ergänzen
+correctRate = 100*length( find(resMatrix(:,8)==1) )/(nTrials/2);  % Index der respCorrect Spalte ergänzen
 meanRT = 1000*mean(resMatrix( find(resMatrix(:,8)==1),9));    % Index der respCorrect Spalte ergänzen
 
 feedbackText = ['Rate korrekter Antworten: ' num2str(correctRate) ' \nMittlere Reaktionszeit: ' num2str(round(meanRT)) ' ms.\nDrücken Sie die Leertaste um das Experiment zu schließen.'];
