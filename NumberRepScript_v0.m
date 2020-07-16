@@ -112,7 +112,7 @@ KbStrokeWait;
 
 
 %% Experiment--------------------------------------------------------------
-for i = 1:3 % nTrials einfügen
+for i = 1:nTrials
     visonset = GetSecs;  % Zeitmarker für Beginn des trials
     %% Pre-Target
     % Fixationskreuz 1
